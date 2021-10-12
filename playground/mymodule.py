@@ -1,4 +1,4 @@
 from mypackage.utils import *
 
-if __name__ == '__main__':
-	print(multiply(2, 3))
+def multiply(a, b):
+	return a * b
