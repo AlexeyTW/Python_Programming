@@ -35,10 +35,10 @@ def second_decorator(func):
         return func()
     return wrapper
 
-@first_decorator
-@second_decorator
+#@first_decorator
+#@second_decorator
 def decorated():
     print('Finally Called ...')
 
-
+decorated = first_decorator(second_decorator(decorated))
 decorated()
