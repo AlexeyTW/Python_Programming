@@ -1,53 +1,35 @@
 import sys, json, argparse, tempfile, os
-from json.decoder import JSONDecodeError
+from json.decoder import JSONDecodeError, JSONDecoder
+from os import path
 
+storage_path = os.path.join(tempfile.gettempdir(), 'storage.data')
 parser = argparse.ArgumentParser()
 parser.add_argument('--key', required=True)
 parser.add_argument('--value')
 args = parser.parse_args()
+key, value = args.key, args.value
 
-storage_path = os.path.join(tempfile.gettempdir(), 'storage.data')
 
-with open(storage_path, 'w') as file:
-	print(storage_path)
-	try:
-		json_data = file.read()
-		print(json_data)
-	except JSONDecodeError:
-		json_data = {args.key: []}
-		file.write(json_data)
-		print('except')
-
-	'''try:
-		json_data = file.read()
-	except JSONDecodeError:
-		json_data = {args.key: []}'''
-'''with open ('storage.txt', 'w') as file:
-	if args.key and args.value:
-		if args.key in json_data:
-			json_data[args.key].append(args.value)
+if key and value:
+	with open(storage_path, 'r') as file:
+		try:
+			storage_data = json.load(file)
+		except JSONDecodeError:
+			storage_data = {key: []}
+		if key in storage_data.keys():
+			storage_data[key].append(value)
 		else:
-			json_data[args.key] = args.value
-		json.dump(json_data, file)
-	else:
-		print(', '.join(json_data[args.key]))'''
-
-
-
-
-'''parser = argparse.ArgumentParser()
-parser.add_argument('--key', required=True)
-parser.add_argument('--value', action='append')
-args = parser.parse_args()
-key = args.key
-value = args.value
-data = {key: value}
-print(data)
-
-if len(args.__dict__) > 1:
-	data[key].append(str(value))
-	print(data)
-	with open('storage.txt', 'w') as file:
-		json.dump(data, file)
+			storage_data[key] = [value]
+	with open(storage_path, 'w') as target:
+		json.dump(storage_data, target)
 else:
-	print(data[args.key])'''
+	if os.path.exists(storage_path):
+		with open(storage_path, 'r') as file:
+			storage_data = json.load(file)
+			if key in storage_data.keys():
+				print(', '.join(storage_data[key]))
+			else:
+				print('None')
+	else:
+		with open(storage_path, 'w') as file:
+			pass
