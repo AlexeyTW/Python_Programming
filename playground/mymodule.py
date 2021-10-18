@@ -15,6 +15,10 @@ class Human:
 	def say_how_old(self):
 		self._say(f'I am {self._age} years old')
 
+	@staticmethod
+	def is_age_valid(age):
+		return 0 < age < 150
+
 
 class Planet:
 
@@ -26,9 +30,6 @@ class Planet:
 		print(f'Welcome to {self.name} human {human.name}')
 		self.population.append(human)
 
-
-#solar_system = []
-#planet_names = ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune']
 
 def extract_description(user_string):
 	return 'FIFA championship'
@@ -51,5 +52,25 @@ class Event:
 		date = extract_date(user_input)
 		return cls(description, date)
 
+class Robot:
 
-print(dict.fromkeys("12345"))
+	def __init__(self, power):
+		self._power = power
+
+	power = property()
+
+	@power.setter
+	def power(self, value):
+		if value < 0:
+			self._power = 0
+		else:
+			self._power = value
+
+	@power.getter
+	def power(self):
+		return self._power
+
+	@power.deleter
+	def power(self):
+		print('Make robot useless')
+		del self._power
