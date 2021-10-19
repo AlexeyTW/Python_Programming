@@ -1,4 +1,5 @@
 from datetime import date
+import json
 
 class Human:
 
@@ -37,6 +38,7 @@ def extract_description(user_string):
 def extract_date(user_string):
 	return date(2018, 6, 14)
 
+
 class Event:
 
 	def __init__(self, description, event_date):
@@ -74,3 +76,51 @@ class Robot:
 	def power(self):
 		print('Make robot useless')
 		del self._power
+
+
+class Pet:
+	def __init__(self, name):
+		self.name = name
+
+
+class Dog(Pet):
+	def __init__(self, name, breed = None):
+		super().__init__(name)
+		self.breed = breed
+
+	def say(self):
+		return f'Hello, I am a dog {self.name} of breed {self.breed}'
+
+
+class ExportJSON:
+	def to_json(self):
+		pass #return json.dumps({"name": self.name, "breed": self.breed})
+
+
+class ExDog(Dog, ExportJSON):
+	def __init__(self, name, breed=None):
+		super().__init__(name, breed)
+
+
+class WooledDog(Dog, ExportJSON):
+	def __init__(self, name, breed=None):
+		super(Dog, self).__init__(name)
+		self.breed = f'Wooled dog of breed {breed}'
+
+class DogPrivate(Pet):
+	def __init__(self, name, breed=None):
+		super().__init__(name)
+		self.__breed = breed
+
+	def say(self):
+		return f'My name is: {self.name}'
+
+	def get_breed(self):
+		return self.__breed
+
+class ExDogPrivate(DogPrivate, ExportJSON):
+	def get_breed(self):
+		return f'Breed is {self.get_breed()}'
+
+dog = ExDogPrivate('PrivName', 'PrivBreed')
+print(dog.__dict__)
