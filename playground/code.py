@@ -19,7 +19,7 @@ class User:
 #jane = User('Jane Doe', 'fanedoe@example.com')
 #joe = User('Joe Doe', 'fanedoe@example.com')
 
-#print(hash(joe), hash(jane))
+#print(jane == joe)
 
 class Singleton:
 	instance = None
@@ -33,6 +33,7 @@ class Singleton:
 #print(id(a) == id(b))
 
 class Researcher:
+	eattr = 1
 	def __getattr__(self, item):
 		return f'Attribute {item} is not found'
 
@@ -41,15 +42,41 @@ class Researcher:
 		return object.__getattribute__(self, item)
 
 #obj = Researcher()
-#print(obj.attr)
+#print(obj.seattr)
 
 class Ignorant:
 	def __setattr__(self, key, value):
 		print('Do not set method {}!'.format(key))
 
-#obj = Ignorant
+#obj = Ignorant()
 #obj.math = 123
 #print(obj.__dict__)
 
-#class Setter:
-	#def __getitem__(self, item):
+class NoisyInt:
+	def __init__(self, value):
+		self.value = value
+
+	def __add__(self, other):
+		return self.value + other.value + 0.1
+
+#a = NoisyInt(10)
+#b = NoisyInt(5)
+#print(a + b)
+
+class ItemsActions:
+	def __init__(self, iterable):
+		self.iterable = iterable or []
+
+	def __getitem__(self, item):
+		return self.iterable[item + 1]
+
+	def __setitem__(self, key, value):
+		self.iterable[key] = value * 2
+
+	def __str__(self):
+		return self.iterable.__str__()
+
+
+#obj = ItemsActions([1, 2, 3, 4, 5])
+#obj[4] = 87
+#print(obj)

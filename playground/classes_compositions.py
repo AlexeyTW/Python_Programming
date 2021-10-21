@@ -56,10 +56,19 @@ class Event:
 
 class Robot:
 
-	def __init__(self, power):
+	def __init__(self, power, length):
 		self._power = power
+		self._length = length
 
 	power = property()
+	length = property()
+
+	@length.setter
+	def length(self, value):
+		if value < 10:
+			self._length = 555
+		else:
+			self._length = value
 
 	@power.setter
 	def power(self, value):
@@ -128,5 +137,6 @@ class Pet:
 class Cat(Pet):
 	pass
 
+robot = Robot(-1, 2)
 
-print(isinstance(Cat(), Pet))
+print(robot.power)
