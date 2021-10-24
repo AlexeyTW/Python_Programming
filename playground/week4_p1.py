@@ -1,7 +1,7 @@
 import tempfile as tempfile
 import os.path as path
 
-path_to_file = 'C:\\Users\\ALEXEY~1.BAR\\AppData\\Local\\Temp\\file'
+path_to_file = 'C:\\Users\\ALEXEY~1\\AppData\\Local\\Temp'
 
 class File:
 	def __init__(self, filename):
@@ -27,7 +27,7 @@ class File:
 			f.write(self.read() + other.read())
 		return summary_file
 
-	def __iter__(self, _start = 0):
+	def __iter__(self, _start=0):
 		self._start = _start
 		return self
 
