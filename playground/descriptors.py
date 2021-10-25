@@ -48,10 +48,9 @@ class Account:
 #account_inst.amount = 150
 
 class Class:
-    def method(self):
-        pass
+    val = Value()
 
-obj = Class()
+inst = Class()
+inst.val = 10
 
-print(obj.method)
-print(Class.method)
+print(inst.val)
