@@ -15,7 +15,7 @@ class Account:
 	def __init__(self, commission):
 		self.commission = commission
 
-acc = Account(0.1)
+acc = Account(0.25)
 acc.amount = 100
 
 print(acc.amount)
