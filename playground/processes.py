@@ -1,7 +1,11 @@
 import time, os
+from multiprocessing import Process
 
-pid = os.getpid()
 
-for i in range(5):
-    print(pid, time.time())
-    time.sleep(2)
+def f(name):
+    print(f'Hello, {name}. PID: {os.getpid()}')
+
+if __name__ == '__main__':
+    pr = Process(target=f, args=('Bob',))
+    pr.start()
+    pr.join()
