@@ -51,11 +51,11 @@ class PrintThread(Thread):
     def run(self):
         print(f'Hello, {self.name}. PID = {os.getpid()}')
 
-'''th = PrintThread('Michael')
+th = PrintThread('Michael')
 th.start()
-th.join()'''
+th.join()
 
-t0 = time.time()
+'''t0 = time.time()
 count(100_000_000)
 count(100_000_000)
 t1 = time.time()
@@ -68,4 +68,4 @@ th2 = Thread(target=count, args=(100_000_000,))
 th1.start(); th2.start()
 th1.join(); th2.join()
 
-print(time.time() - t0)
+print(time.time() - t0)'''
