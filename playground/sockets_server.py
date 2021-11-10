@@ -1,7 +1,7 @@
 import socket
 # =================================
 '''with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-    sock.bind(('127.0.0.1', 10001))
+    sock.bind(('0.0.0.0', 10001))
     sock.listen(socket.SOMAXCONN)
     while True:
         conn, addr = sock.accept()
@@ -14,11 +14,11 @@ import socket
 
 # ======================================
 '''sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock.bind(('', 10001))
+sock.bind(('192.168.123.143', 10001))
 sock.listen(socket.SOMAXCONN)
 
 conn, addr = sock.accept()
-conn.settimeout(15)
+conn.settimeout(5)
 while True:
     data = conn.recv(1024)
     if not data:
@@ -26,8 +26,8 @@ while True:
     print(data.decode('utf-8'))
 
 conn.close()
-sock.close()'''
-
+sock.close()
+'''
 # Timeouts ==============================
 
 with socket.socket() as sock:
@@ -39,25 +39,25 @@ with socket.socket() as sock:
         with conn:
             while True:
                 try:
-                    data = conn.recv(1024)
+                    data = sock.recv(1024)
                 except socket.timeout:
                     print('Connection is closed by timeout')
                     break
+
                 if not data:
                     break
                 print(data.decode('utf-8'))
 
-
 '''sock = socket.socket()
-sock.bind(('127.0.0.1', 10001))
+sock.bind(('192.168.123.143', 10001))
 sock.listen()
 
 conn, addr = sock.accept()
-conn.settimeout(5)
+conn.settimeout(30)
 
 while True:
     try:
-        data = conn.recv(1024)
+        data = sock.recv(1024)
     except socket.timeout:
         print('Socket timeout error')
         break

@@ -1,8 +1,9 @@
-def range_custom(start, end):
-    current = start
-    while current < end:
+def MyRangeGenerator(top):
+    current = 0
+    while current < top:
         yield current
-        current += 2
+        current += 1
 
-
-print((1, 2, 'fr'))
+counter = MyRangeGenerator(3)
+for i in counter:
+    print(i)
