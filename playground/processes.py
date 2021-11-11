@@ -69,3 +69,4 @@ th1.start(); th2.start()
 th1.join(); th2.join()
 
 print(time.time() - t0)'''
+os.fork()
