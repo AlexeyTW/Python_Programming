@@ -11,20 +11,30 @@ class Client:
 		self.host = host
 		self.port = port
 		self.timeout = timeout
+		self.client = socket.create_connection((host, port))
 
-	def put(self, key, value, timestamp=int(time.time())):
+	def put(self, key, value, timestamp=0):
 		self.key = key
 		self.value = value
-		self.timestamp = timestamp
-
-		with open('metrics.txt', 'a') as file:
-			file.write(' '.join(map(str, [key, value, timestamp])) + '\n')
+		self.timestamp = int(time.time()) if timestamp == 0 else timestamp
+		try:
+			#float(value)
+			#int(timestamp)
+			self.client.sendall(('put ' + ' '.join(map(str, [self.key, self.value, self.timestamp])) + '\n').encode('utf-8'))
+			# with open('metrics.txt', 'a') as file:
+			#	file.write(' '.join(map(str, [key, value, timestamp])) + '\n')
+			# print(repr('ok\n\n'))
+		except ValueError:
+			#print(ClientError)
+			raise ClientError
 
 	def get(self, key):
 		self.key = key
 		srv_dict = {}; i = 0
 		try:
-			srv_ans = 'ok' + '\n' + ''.join(self._str_getter(self.key)) + '\n'
+			#srv_ans = 'ok' + '\n' + ''.join(self._str_getter(self.key)) + '\n'
+			self.client.sendall(('get ' + str(key) + '\n').encode('utf-8'))
+			srv_ans = self.client.recv(1024).decode('utf-8')
 			srv_lst = srv_ans[3:].replace('\n', ' ').split()
 			while True:
 				if i < len(srv_lst) and not i % 3:
@@ -39,9 +49,12 @@ class Client:
 					i += 3
 				else:
 					break
-			print(srv_dict)
-		except ClientError as ex:
-			print(ex)
+			return srv_dict
+			#print(srv_dict)
+			#print(repr(srv_ans))
+		except Exception:
+			#print(ex)
+			raise ClientError
 
 	def _str_getter(self, key: str):
 		with open('metrics.txt', 'r') as file:
@@ -54,6 +67,15 @@ class Client:
 				for row in rows:
 					yield row.strip() + '\n'
 
+	def close_client(self):
+		self.client.close()
 
-client = Client("127.0.0.1", 8888)
-client.get('fff')
+
+	def request_format_check(self, request):
+		if request in ['get', 'put', '*']:
+			return True
+		return False
+
+#client = Client("localhost", 10001)
+#client.get('eardruq')
+#client.put("eardrum.cpu", 3, 1150864250)
