@@ -1,17 +1,17 @@
 import asyncio
 
 
-'''async def hello_world():
+async def hello_world():
 	while True:
 		print('Hello, world!')
-		await asyncio.sleep(1.0)'''
+		await asyncio.sleep(1.0)
 
 #loop = asyncio.get_event_loop()
 #loop.run_until_complete(hello_world())
 #loop.close()
 
 # ===================== SERVER ====================
-'''async def handle_echo(reader, writer):
+async def handle_echo(reader, writer):
 	data = await reader.read(1024)
 	message = data.decode()
 	addr = writer.get_extra_info('peername')
@@ -25,7 +25,7 @@ server = loop.run_until_complete(coro)
 try:
 	loop.run_forever()
 except KeyboardInterrupt:
-	pass'''
+	pass
 
 
 

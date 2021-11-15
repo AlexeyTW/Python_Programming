@@ -14,10 +14,10 @@ class Client:
 		self.client = socket.create_connection((host, port))
 
 	def response_format_check(self, response: str):
-		if response.startswith("ok\n") :
+		if response.startswith("ok\n"):
 			return True
 		else:
-			raise ClientError('Client error')
+			raise ClientError('Incorrect request format')
 
 	def put(self, key, value, timestamp=0):
 		self.key = key
@@ -26,6 +26,7 @@ class Client:
 		try:
 			self.client.sendall(('put ' + ' '.join(map(str, [self.key, self.value, self.timestamp])) + '\n').encode('utf-8'))
 			srv_ans = self.client.recv(1024).decode('utf-8')
+			print(repr(srv_ans))
 			self.response_format_check(srv_ans)
 		except ValueError:
 			raise ClientError('Client error')
@@ -35,7 +36,7 @@ class Client:
 		srv_dict = {}; i = 0
 		try:
 			#srv_ans = 'ok' + '\n' + ''.join(self._str_getter(self.key)) + '\n'
-			self.client.sendall(('get ' + str(key) + '\n').encode('utf-8'))
+			self.client.sendall(('gett ' + str(key) + '\n').encode('utf-8'))
 			srv_ans = self.client.recv(1024).decode('utf-8')
 			self.response_format_check(srv_ans)
 			srv_lst = srv_ans[3:].replace('\n', ' ').split()
@@ -70,6 +71,6 @@ class Client:
 	def close_client(self):
 		self.client.close()
 
-#client = Client("localhost", 10001)
+#client = Client("localhost", 8888)
 #client.get('eardruq')
 #client.put("eardrum.cpu", 3, 1150864250)
