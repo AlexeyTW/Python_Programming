@@ -13,20 +13,22 @@ class Client:
 		self.timeout = timeout
 		self.client = socket.create_connection((host, port))
 
+	def response_format_check(self, response: str):
+		if response.startswith("ok\n") :
+			return True
+		else:
+			raise ClientError('Client error')
+
 	def put(self, key, value, timestamp=0):
 		self.key = key
 		self.value = value
 		self.timestamp = int(time.time()) if timestamp == 0 else timestamp
 		try:
-			#float(value)
-			#int(timestamp)
 			self.client.sendall(('put ' + ' '.join(map(str, [self.key, self.value, self.timestamp])) + '\n').encode('utf-8'))
-			# with open('metrics.txt', 'a') as file:
-			#	file.write(' '.join(map(str, [key, value, timestamp])) + '\n')
-			# print(repr('ok\n\n'))
+			srv_ans = self.client.recv(1024).decode('utf-8')
+			self.response_format_check(srv_ans)
 		except ValueError:
-			#print(ClientError)
-			raise ClientError
+			raise ClientError('Client error')
 
 	def get(self, key):
 		self.key = key
@@ -35,6 +37,7 @@ class Client:
 			#srv_ans = 'ok' + '\n' + ''.join(self._str_getter(self.key)) + '\n'
 			self.client.sendall(('get ' + str(key) + '\n').encode('utf-8'))
 			srv_ans = self.client.recv(1024).decode('utf-8')
+			self.response_format_check(srv_ans)
 			srv_lst = srv_ans[3:].replace('\n', ' ').split()
 			while True:
 				if i < len(srv_lst) and not i % 3:
@@ -50,11 +53,8 @@ class Client:
 				else:
 					break
 			return srv_dict
-			#print(srv_dict)
-			#print(repr(srv_ans))
 		except Exception:
-			#print(ex)
-			raise ClientError
+			raise ClientError('Client error')
 
 	def _str_getter(self, key: str):
 		with open('metrics.txt', 'r') as file:
@@ -69,12 +69,6 @@ class Client:
 
 	def close_client(self):
 		self.client.close()
-
-
-	def request_format_check(self, request):
-		if request in ['get', 'put', '*']:
-			return True
-		return False
 
 #client = Client("localhost", 10001)
 #client.get('eardruq')
