@@ -35,13 +35,10 @@ class Client:
 		self.key = key
 		srv_dict = {}; i = 0
 		try:
-			#srv_ans = 'ok' + '\n' + ''.join(self._str_getter(self.key)) + '\n'
 			self.client.sendall(('get ' + str(key) + '\n').encode('utf-8'))
 			srv_ans = self.client.recv(1024).decode('utf-8')
-			#print('Server answer: {}'.format(srv_ans))
 			self.response_format_check(srv_ans)
 			srv_lst = srv_ans[3:].replace('\n', ' ').split()
-			#print('SRV LST: {}'.format(srv_lst))
 			while True:
 				if i < len(srv_lst) and not i % 3:
 					key = srv_lst[i]
@@ -58,17 +55,6 @@ class Client:
 			return srv_dict
 		except Exception:
 			raise ClientError('Client error')
-
-	def _str_getter(self, key: str):
-		with open('metrics.txt', 'r') as file:
-			rows = file.readlines()
-			if key != '*':
-				for row in rows:
-					if key in row:
-						yield row.strip() + '\n'
-			else:
-				for row in rows:
-					yield row.strip() + '\n'
 
 	def close_client(self):
 		self.client.close()
