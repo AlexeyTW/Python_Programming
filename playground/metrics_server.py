@@ -3,23 +3,23 @@ import asyncio
 
 class ClientServerProtocol(asyncio.Protocol):
     srv_data = {}
+
     def connection_made(self, transport):
         self.transport = transport
 
     def data_received(self, data):
         client_request = data.decode()
-        print(client_request)
         try:
             if client_request.split()[0] == 'put' and len(client_request.split()) <= 4:
-                print('Test!!!')
                 key = client_request.split()[1]
                 metric = float(client_request.split()[2])
                 timestamp = int(client_request.split()[3])
                 if key not in self.srv_data.keys():
                     self.srv_data[key] = [(metric, timestamp)]
                 else:
-                    if timestamp in self.srv_data[key][-1]:
-                        self.srv_data[key].pop()
+                    if self.timestamp_check(key, timestamp) != -1:
+                        ind = self.timestamp_check(key, timestamp)
+                        self.srv_data[key].remove(self.srv_data[key][ind])
                         self.srv_data[key].append((metric, timestamp))
                     else:
                         self.srv_data[key].append((metric, timestamp))
@@ -43,6 +43,13 @@ class ClientServerProtocol(asyncio.Protocol):
                 for vals in self.srv_data[key]:
                     get_resp = key + ' ' + ' '.join(map(str, vals)) + '\n'
                     yield get_resp
+
+    def timestamp_check(self, key, timestamp):
+        ind = -1
+        for val in self.srv_data[key]:
+            if timestamp in val:
+                ind = self.srv_data[key].index(val)
+        return ind
 
 def run_server(host, port):
     loop = asyncio.get_event_loop()
