@@ -45,6 +45,8 @@ def draw_points(points, style="points", width=3, color=(255, 255, 255)):
     """функция отрисовки точек на экране"""
     if style == "line":
         for p_n in range(-1, len(points) - 1):
+            #print('P_N: ', p_n, 'Len_points: ', len(points))
+            #print(points)
             pygame.draw.line(gameDisplay, color,
                              (int(points[p_n][0]), int(points[p_n][1])),
                              (int(points[p_n + 1][0]), int(points[p_n + 1][1])), width)
@@ -160,10 +162,12 @@ if __name__ == "__main__":
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 points.append(event.pos)
-                print(event.pos)
+                #print(event.pos)
                 speed = (random.random() * 2, random.random() * 2)
                 speeds.append(speed)
-                print(speed)
+                #print(speed)
+
+                print(points)
 
         gameDisplay.fill((0, 0, 0))
         hue = (hue + 1) % 360
