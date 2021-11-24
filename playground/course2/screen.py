@@ -163,7 +163,7 @@ if __name__ == "__main__":
             if event.type == pygame.MOUSEBUTTONDOWN:
                 points.append(event.pos)
                 #print(event.pos)
-                speed = (random.random() * 2, random.random() * 2)
+                speed = (random.random() * 0.1, random.random() * 0.1)
                 speeds.append(speed)
                 #print(speed)
 
