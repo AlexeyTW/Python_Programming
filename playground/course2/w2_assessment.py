@@ -65,6 +65,11 @@ class Polyline:
 			if points[p][1] > SCREEN_DIM[1] or points[p][1] < 0:
 				speeds[p] = (speeds[p][0], -speeds[p][1])
 
+
+class Knot(Polyline):
+	def __init__(self):
+		super().__init__(points, speeds)
+
 	def get_point(self, points, alpha, deg=None):
 		if deg is None:
 			deg = len(points) - 1
@@ -97,7 +102,6 @@ class Polyline:
 		return res
 
 
-
 if __name__ == '__main__':
 	pygame.init()
 	gameDisplay = pygame.display.set_mode(SCREEN_DIM)
@@ -111,6 +115,7 @@ if __name__ == '__main__':
 	points = []
 	speeds = []
 	poly = Polyline(points, speeds)
+	knot = Knot()
 
 	while working:
 		for event in pygame.event.get():
@@ -135,7 +140,7 @@ if __name__ == '__main__':
 		hue = (hue + 1) % 360
 		color.hsla = (hue, 100, 50, 100)
 		poly.draw_points(poly.points)
-		poly.draw_points(poly.get_knot(poly.points, steps), 'line', 3, color)
+		poly.draw_points(knot.get_knot(poly.points, steps), 'line', 3, color)
 
 		if not pause:
 			poly.set_points(poly.points, poly.speeds)
