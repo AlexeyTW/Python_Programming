@@ -84,11 +84,15 @@ def draw_help():
 # Функции, отвечающие за расчет сглаживания ломаной
 # =======================================================================================
 def get_point(points, alpha, deg=None):
+    #print(f'base points: ', points, alpha)
     if deg is None:
         deg = len(points) - 1
     if deg == 0:
         return points[0]
-    return add(mul(points[deg], alpha), mul(get_point(points, alpha, deg - 1), 1 - alpha))
+    #print(f'X: {mul(points[deg], alpha)}, Y: {mul(get_point(points, alpha, deg - 1), 1 - alpha)}')
+    x = mul(points[deg], alpha)
+    y = mul(get_point(points, alpha, deg - 1), 1 - alpha)
+    return add(x, y)
 
 
 def get_points(base_points, count):
@@ -108,7 +112,6 @@ def get_knot(points, count):
         ptn.append(mul(add(points[i], points[i + 1]), 0.5))
         ptn.append(points[i + 1])
         ptn.append(mul(add(points[i + 1], points[i + 2]), 0.5))
-
         res.extend(get_points(ptn, count))
     return res
 
@@ -162,12 +165,8 @@ if __name__ == "__main__":
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 points.append(event.pos)
-                #print(event.pos)
-                speed = (random.random() * 0.1, random.random() * 0.1)
+                speed = (random.random() * 0.5, random.random() * 0.5)
                 speeds.append(speed)
-                #print(speed)
-
-                print(points)
 
         gameDisplay.fill((0, 0, 0))
         hue = (hue + 1) % 360
