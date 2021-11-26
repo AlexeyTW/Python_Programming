@@ -72,6 +72,20 @@ class Polyline:
 			speeds[s] = tuple([i * coef for i in temp])
 		self.speeds = speeds
 
+	def make_polyline_copy(self):
+		pts = list(self.points)
+		spds = list(self.speeds)
+		new_poly = Polyline(pts, spds)
+
+		for i in range(len(pts)):
+			temp = pts[i]
+			new_poly.points[i] = tuple([int(i / 2) for i in temp])
+		for i in range(len(spds)):
+			temp = spds[i]
+			new_poly.speeds[i] = tuple([i * 0.7 for i in temp])
+
+		return new_poly
+
 
 class Knot(Polyline):
 	def __init__(self):
@@ -127,6 +141,8 @@ class Help:
 		data.append(["Backspace", "Remove base point"])
 		data.append(["Key UP", "Increase points speed"])
 		data.append(["Key DOWN", "Reduce points speed"])
+		data.append(["Slash '/'", "Add one more polyline"])
+		data.append(["Backslash '\\'", "Remove one polyline"])
 		data.append(["", ""])
 		data.append([str(steps), "Current points"])
 
@@ -148,11 +164,13 @@ if __name__ == '__main__':
 	pause = True
 	show_help = False
 	hue = 0
-	steps = 5
+	steps = 25
 	color = pygame.Color(0)
 	points = []
 	speeds = []
 	poly = Polyline(points, speeds)
+	polylines = []
+	polylines.append(poly)
 	knot = Knot()
 	help_ = Help()
 	speed_coef = 1
@@ -165,8 +183,9 @@ if __name__ == '__main__':
 				if event.key == pygame.K_ESCAPE:
 					working = False
 				if event.key == pygame.K_r:
-					poly.points = []
-					poly.speeds = []
+					for poly in polylines:
+						poly.points = []
+						poly.speeds = []
 				if event.key == pygame.K_p:
 					pause = not pause
 				if event.key == pygame.K_KP_PLUS:
@@ -176,31 +195,43 @@ if __name__ == '__main__':
 				if event.key == pygame.K_UP or event.key == pygame.K_DOWN:
 					speed_coef = 1
 				if event.key == pygame.K_BACKSPACE:
-					if len(poly.points) > 3:
-						poly.points.pop()
+					for poly in polylines:
+						if len(poly.points) > 3:
+							poly.points.pop()
 				if event.key == pygame.K_UP:
 					speed_coef += 0.1
-					poly.change_speed(poly.speeds, speed_coef)
+					for poly in polylines:
+						poly.change_speed(poly.speeds, speed_coef)
 				if event.key == pygame.K_DOWN:
 					speed_coef -= 0.1
-					poly.change_speed(poly.speeds, speed_coef)
+					for poly in polylines:
+						poly.change_speed(poly.speeds, speed_coef)
 				if event.key == pygame.K_F1:
 					show_help = not show_help
+				if event.key == pygame.K_SLASH:
+					new_poly = polylines[-1].make_polyline_copy()
+					polylines.append(new_poly)
+				if event.key == pygame.K_BACKSLASH:
+					if len(polylines) > 1:
+						polylines.pop()
 
 			if event.type == pygame.MOUSEBUTTONDOWN:
-				point = (event.pos[0], event.pos[1])
-				speed = (random.random() * speed_coef, random.random() * speed_coef)
-				poly.points.append(point)
-				poly.speeds.append(speed)
+				for poly in polylines:
+					point = (event.pos[0] / (polylines.index(poly) + 1), event.pos[1])
+					speed = (random.random() * speed_coef, random.random() * speed_coef)
+					poly.points.append(point)
+					poly.speeds.append(speed)
 
 		gameDisplay.fill((5, 5, 25))
 		hue = (hue + 1) % 360
 		color.hsla = (hue, 100, 50, 100)
-		poly.draw_points(poly.points)
-		poly.draw_points(knot.get_knot(poly.points, steps), 'line', 3, color)
+		for poly in polylines:
+			poly.draw_points(poly.points)
+			poly.draw_points(knot.get_knot(poly.points, steps), 'line', 3, color)
 
 		if not pause:
-			poly.set_points(poly.points, poly.speeds)
+			for poly in polylines:
+				poly.set_points(poly.points, poly.speeds)
 		if show_help:
 			help_.draw_help()
 
