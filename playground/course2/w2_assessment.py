@@ -25,9 +25,9 @@ class Vec2d:
 		return math.sqrt(self.x ** 2 + self.y ** 2)
 
 	def int_pair(self, x, y):
-		self.x = x
-		self.y = y
-		return self.__sub__(self.y, self.x)
+		self.x = y
+		self.y = x
+		return self.__sub__()
 
 
 class Polyline:
