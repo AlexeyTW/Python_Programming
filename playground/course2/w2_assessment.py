@@ -41,11 +41,6 @@ class Polyline:
 		self.speed = speed
 
 	def draw_points(self, points, style="points", width=3, color=(255, 255, 255)):
-		#self.points = points
-		#self.style = style
-		#self.width = width
-		#self.color = color
-
 		if style == 'line':
 			for p_n in range(-1, len(points) - 1):
 				pygame.draw.line(gameDisplay, color,
@@ -183,9 +178,7 @@ if __name__ == '__main__':
 				if event.key == pygame.K_ESCAPE:
 					working = False
 				if event.key == pygame.K_r:
-					for poly in polylines:
-						poly.points = []
-						poly.speeds = []
+					polylines = [Polyline([], [])]
 				if event.key == pygame.K_p:
 					pause = not pause
 				if event.key == pygame.K_KP_PLUS:
