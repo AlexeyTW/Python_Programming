@@ -39,9 +39,107 @@ class Hero:
 # =============================================================================
 # начало секции ВАШ КОД
 # =============================================================================
-# Поместите в этой секции реализацию классов AbstractEffect, AbstractPositive,
-# AbstractNegative, Berserk, Blessing, Curse, EvilEye, Weakness из вашего
-# решения
+class AbstractEffect(Hero, ABC):
+    def __init__(self, obj):
+        self.base = obj
+        self.stats = dict(obj.stats)
+        self.positive_effects = list(obj.positive_effects)
+        self.negative_effects = list(obj.negative_effects)
+        self.common_stats = ['Strength', 'Perception', 'Endurance', 'Charisma',
+                             'Intelligence', 'Agility', 'Luck']
+
+    @abstractmethod
+    def get_stats(self):
+        return self.stats.copy()
+
+    @abstractmethod
+    def get_positive_effects(self):
+        return self.positive_effects.copy()
+
+    @abstractmethod
+    def get_negative_effects(self):
+        return self.negative_effects.copy()
+
+
+class AbstractPositive(AbstractEffect):
+    def __init__(self, obj):
+        super().__init__(obj)
+
+    def get_positive_effects(self):
+        return self.positive_effects.copy()
+
+    def get_negative_effects(self):
+        return self.negative_effects.copy()
+
+
+class AbstractNegative(AbstractEffect):
+    def __init__(self, obj):
+        super().__init__(obj)
+
+    def get_positive_effects(self):
+        return self.positive_effects.copy()
+
+    def get_negative_effects(self):
+        return self.negative_effects.copy()
+
+
+class Berserk(AbstractPositive):
+    def __init__(self, obj):
+        super().__init__(obj)
+        self.positive_effects.append(self.__class__.__name__)
+
+    def get_stats(self):
+        self.stats = dict(self.base.stats)
+
+        for key in ['Strength', 'Endurance', 'Agility', 'Luck']:
+            self.stats[key] += 7
+        for key in ['Perception', 'Charisma', 'Intelligence']:
+            self.stats[key] -= 3
+        self.stats['HP'] += 50
+        return self.stats
+
+
+class Blessing(AbstractPositive):
+    def __init__(self, obj):
+        super().__init__(obj)
+        for key in self.common_stats:
+            self.stats[key] += 2
+
+    def get_stats(self):
+        return self.stats
+
+
+class Weakness(AbstractNegative):
+    def __init__(self, obj):
+        super().__init__(obj)
+
+        for key in ['Strength', 'Endurance', 'Agility']:
+            self.stats[key] -= 4
+
+    def get_stats(self):
+        return self.stats
+
+
+class Curse(AbstractNegative):
+    def __init__(self, obj):
+        super().__init__(obj)
+        self.negative_effects.append(self.__class__.__name__)
+
+    def get_stats(self):
+        self.stats = dict(self.base.stats)
+        for key in self.common_stats:
+            self.stats[key] -= 2
+
+        return self.stats
+
+
+class EvilEye(AbstractNegative):
+    def __init__(self, obj):
+        super().__init__(obj)
+        self.stats['Luck'] -= 10
+
+    def get_stats(self):
+        return self.stats
 # =============================================================================
 # конец секции ВАШ КОД
 # =============================================================================
