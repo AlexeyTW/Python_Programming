@@ -50,7 +50,7 @@ class AbstractEffect(Hero, ABC):
         self.base.get_negative_effects()
 
 
-class AbstractPositive(AbstractEffect):
+'''class AbstractPositive(AbstractEffect):
     def get_stats(self):
         self.get_stats()
 
@@ -69,13 +69,12 @@ class AbstractNegative(AbstractEffect):
         self.get_positive_effects()
 
     def get_negative_effects(self):
-        self.get_negative_effects()
+        self.get_negative_effects()'''
 
 
-class Berserk(AbstractPositive):
+class Berserk(AbstractEffect):
     def __init__(self, obj):
         super().__init__(obj)
-        self.positive_effects.append(self.__class__.__name__)
 
     def get_stats(self):
         for key in ['Strength', 'Endurance', 'Agility', 'Luck']:
@@ -86,13 +85,13 @@ class Berserk(AbstractPositive):
         return self.stats
 
     def get_positive_effects(self):
-        return self.positive_effects
+        self.positive_effects.append(self.__class__.__name__)
 
     def get_negative_effects(self):
-        return self.negative_effects
+        self.negative_effects.append(self.__class__.__name__)
 
 
-class Curse(AbstractNegative):
+class Curse(AbstractEffect):
     def __init__(self, obj):
         super().__init__(obj)
         self.negative_effects.append(self.__class__.__name__)
@@ -104,19 +103,19 @@ class Curse(AbstractNegative):
         return self.stats
 
     def get_positive_effects(self):
-        return self.positive_effects
+        self.positive_effects.append(self.__class__.__name__)
 
     def get_negative_effects(self):
-        return self.negative_effects
+        self.negative_effects.append(self.__class__.__name__)
 
 
 hero = Hero()
-print('Hero: ', hero.positive_effects, hero.negative_effects)
+print('Hero: ', hero.get_stats(), hero.get_positive_effects(), hero.get_negative_effects())
 
 bers1 = Berserk(hero)
 print('bers1: ', bers1.get_positive_effects(), bers1.get_negative_effects())
-print('Hero: ',  hero.positive_effects, hero.negative_effects)
-
+print('Hero: ',  hero.get_stats(), hero.get_positive_effects(), hero.get_negative_effects())
+'''
 bers2 = Berserk(bers1)
 print(bers2.get_positive_effects(), bers2.get_negative_effects())
 
@@ -127,7 +126,7 @@ cur2 = Curse(bers2)
 print(cur2.get_positive_effects(), cur2.get_negative_effects())
 
 cur2.base = bers1
-print(cur2.get_positive_effects(), cur2.get_negative_effects())
+print(cur2.get_positive_effects(), cur2.get_negative_effects())'''
 '''
 bers2 = Berserk(bers1)
 print('bers2: ', bers2.get_stats(), bers2.get_positive_effects(), bers2.get_negative_effects())
