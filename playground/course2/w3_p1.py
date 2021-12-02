@@ -30,27 +30,24 @@ class Hero:
         return self.stats.copy()
 
 
-class AbstractEffect(Hero):
+class AbstractEffect(Hero, ABC):
     def __init__(self, obj):
         super().__init__()
         self.base = obj
-        self.stats = dict(obj.stats)
-        self.positive_effects = list(obj.positive_effects)
-        self.negative_effects = list(obj.negative_effects)
         self.common_stats = ['Strength', 'Perception', 'Endurance', 'Charisma',
                              'Intelligence', 'Agility', 'Luck']
 
     @abstractmethod
     def get_stats(self):
-        return self.stats.copy()
+        self.base.get_stats()
 
     @abstractmethod
     def get_positive_effects(self):
-        return self.positive_effects.copy()
+        self.base.get_positive_effects()
 
     @abstractmethod
     def get_negative_effects(self):
-        return self.negative_effects.copy()
+        self.base.get_negative_effects()
 
 
 class AbstractPositive(AbstractEffect):
