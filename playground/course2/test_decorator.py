@@ -59,33 +59,23 @@ class AbstractEffect(ABC, Hero):
 
 
 class AbstractPositive(AbstractEffect):
-    def __init__(self, obj):
-        super().__init__(obj)
+    def get_positive_effects(self):
         self.positive_effects = self.base.get_positive_effects()
         self.positive_effects.append(self.__class__.__name__)
-
-        self.negative_effects = self.base.get_negative_effects()
-
-    def get_positive_effects(self):
-        return self.base.positive_effects.copy()
+        return self.positive_effects
 
     def get_negative_effects(self):
-        return self.base.negative_effects.copy()
+        return self.base.get_negative_effects()
 
 
 class AbstractNegative(AbstractEffect):
-    def __init__(self, obj):
-        super().__init__(obj)
-        self.negative_effects = self.base.get_negative_effects()
-        self.negative_effects.append(self.__class__.__name__)
-
-        self.positive_effects = self.base.get_positive_effects()
-
     def get_positive_effects(self):
-        return self.base.positive_effects.copy()
+        return self.base.get_positive_effects()
 
     def get_negative_effects(self):
-        return self.base.negative_effects.copy()
+        self.negative_effects = self.base.get_negative_effects()
+        self.negative_effects.append(self.__class__.__name__)
+        return self.negative_effects.copy()
 
 
 class Berserk(AbstractPositive):
