@@ -4,23 +4,23 @@ class Engine():
     pass
 
 
-class ObservableEngine(Engine):
+class ObservableEngine:
     def __init__(self, achievement):
-        self.__subs = set()
+        self.__subscribers = set()
         self.achievement = achievement
 
     def subscribe(self, subscriber):
-        self.__subs.add(subscriber)
+        self.__subscribers.add(subscriber)
 
     def unsubscribe(self, subscriber):
-        self.__subs.remove(subscriber)
+        self.__subscribers.remove(subscriber)
 
     def notify(self, achievement):
-        for subscriber in self.__subs:
+        for subscriber in self.__subscribers:
             subscriber.update(achievement)
 
 
-class AbstractObserver(ABC, ObservableEngine):
+class AbstractObserver(ABC):
     @abstractmethod
     def update(self, achievement):
         pass
@@ -48,16 +48,6 @@ class FullNotificationPrinter(AbstractObserver):
         if item not in self.achievements:
             self.achievements.append(item)
 
+# {"title": "Покоритель", "text": "Дается при выполнении всех заданий в игре"}
 
-notifier1 = ShortNotificationPrinter({"title": "Покоритель", "text": "Дается при выполнении всех заданий в игре"})
-#notifier1.update({"title": "Покоритель", "text": "Дается при выполнении всех заданий в игре"})
-
-notifier2 = FullNotificationPrinter({"title": "Покоритель", "text": "Дается при выполнении всех заданий в игре"})
-#notifier2.update({"title": "Покоритель", "text": "Дается при выполнении всех заданий в игре"})
-
-manager = ObservableEngine({"title": "Покоритель", "text": "Дается при выполнении всех заданий в игре"})
-
-manager.subscribe(notifier1)
-manager.subscribe(notifier2)
-
-manager.notify({"title": "Покоритель111", "text": "Дается при выполнении всех заданий в игре"})
+obs = ObservableEngine({"title": "Покоритель", "text": "Дается при выполнении всех заданий в игре"})
