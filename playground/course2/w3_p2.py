@@ -32,7 +32,6 @@ class System:
 
     def get_lightening(self, light_mapper):
         self.lightmap = light_mapper.lighten(self.map)
-        print(self.lightmap)
 
 
 class MappingAdapter(Light):
@@ -48,12 +47,7 @@ class MappingAdapter(Light):
                 if grid[row][col] == -1:
                     self.adaptee.obstacles.append((col, row))
 
-        #for obs in self.adaptee.obstacles:
-         #  self.adaptee.grid[obs[0]][obs[1]] = -1
         self.adaptee.set_obstacles(self.adaptee.obstacles)
-
-        #for l in self.adaptee.lights:
-         #   self.adaptee.grid[l[0]][l[1]] = 1
         self.adaptee.set_lights(self.adaptee.lights)
 
         return self.adaptee.generate_lights()
