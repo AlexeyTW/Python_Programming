@@ -5,10 +5,27 @@ class Engine():
 
 
 class ObservableEngine:
-    def __init__(self, achievement):
+# пробую разными способами инициализировать экземпляр
+# 1
+    def __init__(self):
         self.__subscribers = set()
-        self.achievement = achievement
 
+# 2
+    # def __int__(self, achievement):
+     #   self.__subscribers = set()
+      #  self.achievement = achievement
+
+# 3
+    # def __int__(self, achievement):
+      #  super().__init__(achievement)
+       # self.__subscribers = set()
+       # self.achievement = achievement
+
+# при любом варианте инициализации получаю одинаковую ошибку
+# также пробую наследовать и не наследовать ObservableEngine от Engine
+# ошибка всегда одинаковая
+
+# эти методы оставляю без изменений
     def subscribe(self, subscriber):
         self.__subscribers.add(subscriber)
 
@@ -27,7 +44,6 @@ class AbstractObserver(ABC):
 
 class ShortNotificationPrinter(AbstractObserver):
     def __init__(self, achievement):
-        super().__init__(achievement)
         self.achievements = set()
         self.achievements.add(achievement['title'])
 
@@ -37,7 +53,6 @@ class ShortNotificationPrinter(AbstractObserver):
 
 class FullNotificationPrinter(AbstractObserver):
     def __init__(self, achievement):
-        super().__init__(achievement)
         self.achievement = (achievement['title'], achievement['text'])
         self.achievements = []
         if self.achievement not in self.achievements:
@@ -50,4 +65,19 @@ class FullNotificationPrinter(AbstractObserver):
 
 # {"title": "Покоритель", "text": "Дается при выполнении всех заданий в игре"}
 
-obs = ObservableEngine({"title": "Покоритель", "text": "Дается при выполнении всех заданий в игре"})
+not1 = ShortNotificationPrinter({"title": "Покоритель", "text": "Дается при выполнении всех заданий в игре"})
+not2 = ShortNotificationPrinter({"title": "Покоритель1", "text": "Дается при выполнении всех заданий в игре"})
+not3 = FullNotificationPrinter({"title": "Покоритель", "text": "Дается при выполнении всех заданий в игре"})
+
+manager = ObservableEngine()
+
+manager.subscribe(not1)
+manager.subscribe(not2)
+manager.subscribe(not3)
+
+manager.notify({"title": "111", "text": "111"})
+manager.notify({"title": "111", "text": "111"})
+
+manager.unsubscribe(not1)
+
+print(1)
