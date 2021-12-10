@@ -1,31 +1,13 @@
 from abc import ABC, abstractmethod
 
-class Engine():
+class Engine:
     pass
 
 
-class ObservableEngine:
-# пробую разными способами инициализировать экземпляр
-# 1
+class ObservableEngine(Engine):
     def __init__(self):
         self.__subscribers = set()
 
-# 2
-    # def __int__(self, achievement):
-     #   self.__subscribers = set()
-      #  self.achievement = achievement
-
-# 3
-    # def __int__(self, achievement):
-      #  super().__init__(achievement)
-       # self.__subscribers = set()
-       # self.achievement = achievement
-
-# при любом варианте инициализации получаю одинаковую ошибку
-# также пробую наследовать и не наследовать ObservableEngine от Engine
-# ошибка всегда одинаковая
-
-# эти методы оставляю без изменений
     def subscribe(self, subscriber):
         self.__subscribers.add(subscriber)
 
@@ -43,41 +25,33 @@ class AbstractObserver(ABC):
         pass
 
 class ShortNotificationPrinter(AbstractObserver):
-    def __init__(self, achievement):
+    def __init__(self):
         self.achievements = set()
-        self.achievements.add(achievement['title'])
 
     def update(self, achievement):
         self.achievements.add(achievement['title'])
 
 
 class FullNotificationPrinter(AbstractObserver):
-    def __init__(self, achievement):
-        self.achievement = (achievement['title'], achievement['text'])
+    def __init__(self):
         self.achievements = []
-        if self.achievement not in self.achievements:
-            self.achievements.append(self.achievement)
 
     def update(self, achievement):
-        item = (achievement['title'], achievement['text'])
-        if item not in self.achievements:
-            self.achievements.append(item)
+        #item = (achievement['title'], achievement['text'])
+        if achievement not in self.achievements:
+            self.achievements.append(achievement)
+
 
 # {"title": "Покоритель", "text": "Дается при выполнении всех заданий в игре"}
 
-not1 = ShortNotificationPrinter({"title": "Покоритель", "text": "Дается при выполнении всех заданий в игре"})
-not2 = ShortNotificationPrinter({"title": "Покоритель1", "text": "Дается при выполнении всех заданий в игре"})
-not3 = FullNotificationPrinter({"title": "Покоритель", "text": "Дается при выполнении всех заданий в игре"})
+not3 = FullNotificationPrinter()
 
 manager = ObservableEngine()
 
-manager.subscribe(not1)
-manager.subscribe(not2)
 manager.subscribe(not3)
 
-manager.notify({"title": "111", "text": "111"})
-manager.notify({"title": "111", "text": "111"})
+manager.notify({'text': 'Дается за выполнение основного квеста в игре', 'title': 'Покоритель'})
+manager.notify({'title': 'Покоритель', 'text': 'Дается за выполнение основного квеста в игре'})
 
-manager.unsubscribe(not1)
 
 print(1)
