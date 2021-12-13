@@ -99,10 +99,12 @@ player = Character()
 
 quest_giver.handle_quests(player)
 
-print('Taken quests: ', player.taken_quests)
-print('Passed quests: ', player.passed_quests)
+#print('Taken quests: ', player.taken_quests)
+#print('Passed quests: ', player.passed_quests)
 
-player.taken_quests = {'Bring bars from storage', 'Speak to farmer'}
+#player.taken_quests = {'Bring bars from storage', 'Speak to farmer'}
+
+quest_giver.handle_quests(player)
 
 quest_giver.handle_quests(player)
 
