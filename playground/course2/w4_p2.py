@@ -3,12 +3,12 @@ import random
 
 class AbstractLevel:
     @classmethod
-    def get_map(Class):
-        Class.get_map()
+    def get_map(cls):
+        return cls.Map()
 
     @classmethod
-    def get_objects(Class):
-        Class.get_objects()
+    def get_objects(cls):
+        return cls.Objects()
 
 
 class EasyLevel(AbstractLevel):
@@ -23,12 +23,12 @@ class EasyLevel(AbstractLevel):
                     else:
                         # случайная характеристика области
                         self._map[j][i] = random.randint(0, 2)
+            print('finish init')
 
         def get_map(self):
             return self._map
 
     class Objects:
-
         def __init__(self):
             # размещаем переход на след. уровень
             self.objects = [('next_lvl', (2, 2))]
@@ -68,7 +68,6 @@ class MediumLevel(AbstractLevel):
             return self._map
 
     class Objects:
-
         def __init__(self):
             # размещаем переход на след. уровень
             self.objects = [('next_lvl', (4, 4))]
@@ -87,13 +86,11 @@ class MediumLevel(AbstractLevel):
                             coord = (random.randint(1, 6), random.randint(1, 6))
 
                 self.objects.append((obj_name, coord))
-
             return self.objects
 
 
 class HardLevel(AbstractLevel):
     class Map:
-
         def __init__(self):
             self._map = [[0 for j in range(10)] for i in range(10)]
             for i in range(10):
@@ -109,7 +106,6 @@ class HardLevel(AbstractLevel):
             return self._map
 
     class Objects:
-
         def __init__(self):
             # размещаем переход на след. уровень
             self.objects = [('next_lvl', (5, 5))]
@@ -132,5 +128,4 @@ class HardLevel(AbstractLevel):
                             coord = (random.randint(1, 8), random.randint(1, 8))
 
                 self.objects.append((obj_name, coord))
-
             return self.objects
