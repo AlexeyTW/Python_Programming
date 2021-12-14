@@ -11,43 +11,49 @@ class NullHandler:
 
     def handle(self, obj, event):
         if self.__successor is not None:
-            self.__successor.handle(obj, event)
+            return self.__successor.handle(obj, event)
 
 
 class IntHandler(NullHandler):
     def handle(self, obj, event):
         if event.__class__.__name__ == 'EventGet':
             if event.type == int:
-                #print(obj.integer_field)
                 return obj.integer_field
             else:
-                super().handle(obj, event)
+                return super().handle(obj, event)
         elif event.__class__.__name__ == 'EventSet':
-            obj.integer_field = event.value
+            if isinstance(event.value, int):
+                obj.integer_field = event.value
+            else:
+                super().handle(obj, event)
 
 
 class FloatHandler(NullHandler):
     def handle(self, obj, event):
         if event.__class__.__name__ == 'EventGet':
             if event.type == float:
-                #print(obj.float_field)
                 return obj.float_field
             else:
-                super().handle(obj, event)
+                return super().handle(obj, event)
         elif event.__class__.__name__ == 'EventSet':
-            obj.float_field = event.value
+            if isinstance(event.value, float):
+                obj.float_field = event.value
+            else:
+                super().handle(obj, event)
 
 
 class StrHandler(NullHandler):
     def handle(self, obj, event):
         if event.__class__.__name__ == 'EventGet':
             if event.type == str:
-                #print(obj.string_field)
                 return obj.string_field
             else:
                 super().handle(obj, event)
         elif event.__class__.__name__ == 'EventSet':
-            obj.string_field = event.value
+            if isinstance(event.value, str):
+                obj.string_field = event.value
+            else:
+                super().handle(obj, event)
 
 
 class EventGet:
@@ -70,3 +76,4 @@ chain = IntHandler(FloatHandler(StrHandler(NullHandler)))
 chain.handle(obj, EventGet(int))
 chain.handle(obj, EventGet(float))
 chain.handle(obj, EventGet(str))
+chain.handle(obj, EventSet(0.5))
