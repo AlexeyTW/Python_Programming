@@ -4,6 +4,19 @@ class SomeObject:
         self.float_field = 0.0
         self.string_field = ""
 
+E_INT, E_STR, E_FLOAT = 'INT', 'STR', 'FLOAT'
+
+class EventGet:
+    def __init__(self, type_):
+        self.kind = {int: E_INT, str: E_STR, float: E_FLOAT}[type_]
+        self.prop = None
+
+
+class EventSet:
+    def __init__(self, value):
+        self.kind = {int: E_INT, str: E_STR, float: E_FLOAT}[type(value)]
+        self.prop = value
+
 
 class NullHandler:
     def __init__(self, successor=None):
@@ -16,54 +29,35 @@ class NullHandler:
 
 class IntHandler(NullHandler):
     def handle(self, obj, event):
-        if event.__class__.__name__ == 'EventGet':
-            if event.type == int:
+        if event.kind == E_INT:
+            if event.prop is None:
                 return obj.integer_field
             else:
-                return super().handle(obj, event)
-        elif event.__class__.__name__ == 'EventSet':
-            if isinstance(event.value, int):
-                obj.integer_field = event.value
-            else:
-                super().handle(obj, event)
+                obj.integer_field = event.prop
+        else:
+            return super().handle(obj, event)
 
 
 class FloatHandler(NullHandler):
     def handle(self, obj, event):
-        if event.__class__.__name__ == 'EventGet':
-            if event.type == float:
+        if event.kind == E_FLOAT:
+            if event.prop is None:
                 return obj.float_field
             else:
-                return super().handle(obj, event)
-        elif event.__class__.__name__ == 'EventSet':
-            if isinstance(event.value, float):
-                obj.float_field = event.value
-            else:
-                super().handle(obj, event)
+                obj.float_field = event.prop
+        else:
+            return super().handle(obj, event)
 
 
 class StrHandler(NullHandler):
     def handle(self, obj, event):
-        if event.__class__.__name__ == 'EventGet':
-            if event.type == str:
+        if event.kind == E_STR:
+            if event.prop is None:
                 return obj.string_field
             else:
-                super().handle(obj, event)
-        elif event.__class__.__name__ == 'EventSet':
-            if isinstance(event.value, str):
-                obj.string_field = event.value
-            else:
-                super().handle(obj, event)
-
-
-class EventGet:
-    def __init__(self, type_):
-        self.type = type_
-
-
-class EventSet:
-    def __init__(self, value):
-        self.value = value
+                obj.string_field = event.prop
+        else:
+            return super().handle(obj, event)
 
 
 
