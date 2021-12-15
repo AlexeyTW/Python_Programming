@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+import yaml
 
 class HeroFactory:
 	@classmethod
