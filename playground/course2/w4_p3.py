@@ -24,9 +24,10 @@ class EasyLevel(AbstractLevel):
     yaml_tag = u'!easy_level'
 
     @classmethod
-    def from_yaml(cls, loader, node):
+    def from_yaml(cls, loader: yaml.Loader, node):
         value = loader.construct_mapping(node)
-        #print('Value: ', value)
+        value['map'] = cls().Map()
+        value['obj'] = cls().Objects()
         return value
 
     class Map:
@@ -65,6 +66,15 @@ class EasyLevel(AbstractLevel):
 
 class MediumLevel(AbstractLevel):
     yaml_tag = u'!medium_level'
+
+    @classmethod
+    def from_yaml(cls, loader: yaml.Loader, node):
+        #value = loader.construct_mapping(node)
+        value = {}
+        value['map'] = cls.Map()
+        value['obj'] = cls.Objects()
+        return value
+
     class Map:
         def __init__(self):
             self.Map = [[0 for _ in range(8)] for _ in range(8)]
@@ -81,7 +91,7 @@ class MediumLevel(AbstractLevel):
     class Objects:
         def __init__(self):
             self.objects = [('next_lvl', (4, 4))]
-            self.config = {'enemy': []}
+            self.config = {'enemy': ['rat']}
 
         def get_objects(self, _map):
             for obj_name in self.config['enemy']:
@@ -101,6 +111,15 @@ class MediumLevel(AbstractLevel):
 
 class HardLevel(AbstractLevel):
     yaml_tag = u'!hard_level'
+
+    @classmethod
+    def from_yaml(cls, loader: yaml.Loader, node):
+        #value = loader.construct_mapping(node)
+        value = {}
+        value['map'] = cls.Map()
+        value['obj'] = cls.Objects()
+        return value
+
     class Map:
         def __init__(self):
             self.Map = [[0 for _ in range(10)] for _ in range(10)]
@@ -117,7 +136,7 @@ class HardLevel(AbstractLevel):
     class Objects:
         def __init__(self):
             self.objects = [('next_lvl', (5, 5))]
-            self.config = {'enemy_count': 5, 'enemy': []}
+            self.config = {'enemy_count': 10, 'enemy': ['rat', 'snake', 'dragon']}
 
         def get_objects(self, _map):
             for obj_name in self.config['enemy']:
@@ -156,7 +175,7 @@ levels:
 
 print(Levels1)
 
-'''Levels = {'levels':[]}
+Levels = {'levels':[]}
 _map = EasyLevel.Map()
 _obj = EasyLevel.Objects()
 Levels['levels'].append({'map': _map, 'obj': _obj})
@@ -169,6 +188,9 @@ Levels['levels'].append({'map': _map, 'obj': _obj})
 _map = HardLevel.Map()
 _obj = HardLevel.Objects()
 _obj.config = {'enemy': ['rat', 'snake', 'dragon'], 'enemy_count': 10}
-Levels['levels'].append({'map': _map, 'obj': _obj})'''
+Levels['levels'].append({'map': _map, 'obj': _obj})
 
-#print(Levels)
+print(Levels)
+
+print(Levels1['levels'][2]['obj'].config)
+print(Levels['levels'][2]['obj'].config)
