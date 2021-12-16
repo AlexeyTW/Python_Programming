@@ -4,21 +4,6 @@ from abc import ABC
 
 
 class AbstractLevel(yaml.YAMLObject):
-    @classmethod
-    def from_yaml(cls, loader, node):
-        def easy_level(loader, node):
-            data = loader.construct_mapping(node)
-            return data
-
-        def medium_level(loader, node):
-            pass
-
-        def hard_level(loader, node):
-            pass
-
-        loader.add_constructor('!easy_level', easy_level)
-
-        return loader.construct_mapping(node)
 
     @classmethod
     def get_map(cls):
@@ -36,7 +21,13 @@ class AbstractLevel(yaml.YAMLObject):
 
 
 class EasyLevel(AbstractLevel):
-    yaml_tag = '!easy_level'
+    yaml_tag = u'!easy_level'
+
+    @classmethod
+    def from_yaml(cls, loader, node):
+        value = loader.construct_mapping(node)
+        #print('Value: ', value)
+        return value
 
     class Map:
         def __init__(self):
@@ -73,8 +64,7 @@ class EasyLevel(AbstractLevel):
 
 
 class MediumLevel(AbstractLevel):
-    yaml_tag = '!medium_level'
-
+    yaml_tag = u'!medium_level'
     class Map:
         def __init__(self):
             self.Map = [[0 for _ in range(8)] for _ in range(8)]
@@ -110,8 +100,7 @@ class MediumLevel(AbstractLevel):
 
 
 class HardLevel(AbstractLevel):
-    yaml_tag = '!hard_level'
-
+    yaml_tag = u'!hard_level'
     class Map:
         def __init__(self):
             self.Map = [[0 for _ in range(10)] for _ in range(10)]
@@ -151,7 +140,35 @@ class HardLevel(AbstractLevel):
             return self.objects
 
 
-def factory_constructor(loader, node):
-    data = loader.construct_mapping(node)
-    if isinstance(data, dict):
-        return EasyLevel
+Levels1 = yaml.load(
+'''
+levels:
+    - !easy_level {}
+    - !medium_level
+        enemy: ['rat']
+    - !hard_level
+        enemy:
+            - rat
+            - snake
+            - dragon
+        enemy_count: 10
+''', yaml.Loader)
+
+print(Levels1)
+
+'''Levels = {'levels':[]}
+_map = EasyLevel.Map()
+_obj = EasyLevel.Objects()
+Levels['levels'].append({'map': _map, 'obj': _obj})
+
+_map = MediumLevel.Map()
+_obj = MediumLevel.Objects()
+_obj.config = {'enemy':['rat']}
+Levels['levels'].append({'map': _map, 'obj': _obj})
+
+_map = HardLevel.Map()
+_obj = HardLevel.Objects()
+_obj.config = {'enemy': ['rat', 'snake', 'dragon'], 'enemy_count': 10}
+Levels['levels'].append({'map': _map, 'obj': _obj})'''
+
+#print(Levels)
