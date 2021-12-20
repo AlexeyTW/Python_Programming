@@ -24,7 +24,6 @@ class GameEngine:
         for i in self.subscribers:
             i.update(message)
 
-    # HERO
     def add_hero(self, hero):
         self.hero = hero
 
@@ -34,7 +33,6 @@ class GameEngine:
                 self.delete_object(obj)
                 obj.interact(self, self.hero)
 
-    # MOVEMENT
     def move_up(self):
         self.score -= 0.02
         if self.map[self.hero.position[1] - 1][self.hero.position[0]] == Service.wall:
@@ -63,11 +61,9 @@ class GameEngine:
         self.hero.position[0] += 1
         self.interact()
 
-    # MAP
     def load_map(self, game_map):
         self.map = game_map
 
-    # OBJECTS
     def add_object(self, obj):
         self.objects.append(obj)
 

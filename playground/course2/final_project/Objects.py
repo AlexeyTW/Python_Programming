@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 import pygame
 import random
+from Service import reload_game
 
 
 def create_sprite(img, sprite_size):
@@ -10,10 +11,11 @@ def create_sprite(img, sprite_size):
     sprite.blit(icon, (0, 0))
     return sprite
 
+
 class AbstractObject(ABC):
     @abstractmethod
     def __init__(self):
-        self.sprite = []
+        pass
 
     def draw(self, surface, offset, sprite_size):
         surface.blit(self.sprite,
@@ -38,9 +40,6 @@ class Ally(AbstractObject, Interactive):
     def interact(self, engine, hero):
         self.action(engine, hero)
 
-    def draw(self, display):
-        pass
-
 
 class Creature(AbstractObject):
 
@@ -48,13 +47,37 @@ class Creature(AbstractObject):
         self.sprite = icon
         self.stats = stats
         self.position = position
+        self.hp = 0
         self.calc_max_HP()
         self.hp = self.max_hp
 
     def calc_max_HP(self):
         self.max_hp = 5 + self.stats["endurance"] * 2
-        if self.max_hp < self.hp:
-            self.hp = self.max_hp
+        if self.hp > self.max_hp: self.hp = self.max_hp
+
+
+class Enemy(Creature, Interactive):
+    def __init__(self, icon, stats, xp, position):
+        super().__init__(icon, stats, position)
+        self.exp = xp
+
+    def interact(self, engine, hero):
+        delta_strength = hero.stats["strength"]*(-0.5 + random.random()) - self.stats["strength"]*(-0.5 + random.random())
+        delta_endurance = hero.stats["endurance"]*(-0.5 + random.random()) - self.stats["endurance"]*(-0.5 + random.random())
+        delta_luck = hero.stats["luck"]*(-0.5 + random.random()) - 2*self.stats["luck"]*(-0.5 + random.random())
+        delta_exp = hero.exp*(-0.5 + random.random()) - self.exp*(-0.5 + random.random())
+
+        delta = delta_strength + delta_endurance + delta_luck + delta_exp
+        engine.score += delta + 5
+
+        hero.exp += int(0.5 * self.exp * (-0.1 + random.random()))
+        hero.hp += -5 + int(delta / 5) if delta < 0 else 0
+        if hero.exp < 0: hero.exp = 0
+        if engine.hero.level_up(): engine.notify("Level Up!")
+
+        if hero.hp < 1:
+            hero.hp = 0
+            reload_game(engine, hero, gameover=True)
 
 
 class Hero(Creature):
@@ -64,36 +87,17 @@ class Hero(Creature):
         self.level = 1
         self.exp = 0
         self.gold = 0
-        self.hp = 50
         super().__init__(icon, stats, pos)
 
     def level_up(self):
         while self.exp >= 100 * (2 ** (self.level - 1)):
-            yield "level up!"
             self.level += 1
             self.stats["strength"] += 2
             self.stats["endurance"] += 2
             self.calc_max_HP()
             self.hp = self.max_hp
-
-class Enemy(Creature, Interactive):
-    def __init__(self, icon, stats, xp, position):
-        self.xp = xp
-        super().__init__(icon, stats, position)
-
-    def interact(self, engine, hero):
-        delta = (self.stats["strength"] + self.stats["endurance"]) / \
-                (hero.stats["strength"] + hero.stats["endurance"])
-        exp = self.xp
-        if delta > 1.25:
-            for i in range(hero.stats["luck"]):
-                if hero.stats["luck"] >= random.randint(1, 150):
-                    exp += int(self.xp // 2)
-                    break
-
-        hero.exp += exp
-        exp = int(exp)
-        engine.notify({"info": f"{exp} exp up"})
+            if self.exp < 100 * (2 ** (self.level - 1)):
+                return True
 
 
 class Effect(Hero):
@@ -161,22 +165,25 @@ class Effect(Hero):
 
 
 class Berserk(Effect):
+    def __init__(self, base):
+        super().__init__(base)
+
     def apply_effect(self):
-        self.stats["strength"] += 7
-        self.stats["endurance"] += 7
-        self.stats["intelligence"] -= 3
-        self.stats["luck"] += 7
+        self.stats["strength"] += 50
 
 
 class Blessing(Effect):
+    def __init__(self, base):
+        super().__init__(base)
+
     def apply_effect(self):
-        self.stats["strength"] += 2
-        self.stats["endurance"] += 2
-        self.stats["intelligence"] += 2
-        self.stats["luck"] += 2
+        self.stats["luck"] += 30
 
 
 class Weakness(Effect):
+    def __init__(self, base):
+        super().__init__(base)
+
     def apply_effect(self):
-        self.stats["strength"] -= 4
-        self.stats["endurance"] -= 4
+        self.stats["strength"] -= 15
+        self.stats["luck"] -= 15

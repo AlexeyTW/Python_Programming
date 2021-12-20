@@ -1,5 +1,8 @@
 import pygame
 import collections
+import Service
+import Objects
+
 
 colors = {
     "black": (0, 0, 0, 255),
@@ -8,6 +11,10 @@ colors = {
     "green": (0, 255, 0, 255),
     "blue": (0, 0, 255, 255),
     "wooden": (153, 92, 0, 255),
+    "help": (255, 208, 123, 255),
+    "minimap": (143, 97, 53, 255),
+    "gold": (224, 160, 0, 255),
+    "wall": (49, 18, 4, 255)
 }
 
 
@@ -23,6 +30,7 @@ class ScreenHandle(pygame.Surface):
             self.next_coord = (0, 0)
         super().__init__(*args, **kwargs)
         self.fill(colors["wooden"])
+        self.engine = None
 
     def draw(self, canvas):
         if self.successor is not None:
@@ -31,7 +39,6 @@ class ScreenHandle(pygame.Surface):
 
     def connect_engine(self, engine):
         self.engine = engine
-        engine.subscribe(self)
         if self.successor is not None:
             self.successor.connect_engine(engine)
 
@@ -46,7 +53,9 @@ class GameSurface(ScreenHandle):
         self.game_engine.hero.draw(self, offset, sprite_size)
 
     def draw_map(self, offset):
+
         min_x, min_y = offset[0], offset[1]
+
         if self.game_engine.map:
             for i in range(len(self.game_engine.map[0]) - min_x):
                 for j in range(len(self.game_engine.map) - min_y):
@@ -54,18 +63,6 @@ class GameSurface(ScreenHandle):
                               0], (i * self.game_engine.sprite_size, j * self.game_engine.sprite_size))
         else:
             self.fill(colors["white"])
-
-
-    def draw_object(self, sprite, coord):
-        size = self.game_engine.sprite_size
-    # FIXME || calculate (min_x,min_y) - left top corner
-
-        min_x = 0
-        min_y = 0
-
-    ##
-        self.blit(sprite, ((coord[0] - min_x) * self.game_engine.sprite_size,
-                           (coord[1] - min_y) * self.game_engine.sprite_size))
 
     def draw(self, canvas):
         sprite_size = self.game_engine.sprite_size
@@ -86,18 +83,18 @@ class GameSurface(ScreenHandle):
         if sprites_in_view_x < sprites_in_area_x and self.game_engine.hero.position[0] > center_x:
             min_x = self.game_engine.hero.position[0] - center_x
             if self.game_engine.hero.position[0] > sprites_in_area_x - center_x:
-                min_x = sprites_in_area_x - 2 * center_x
+                min_x = sprites_in_area_x - 2*center_x
 
         if sprites_in_view_y < sprites_in_area_y and self.game_engine.hero.position[1] > center_y:
             min_y = self.game_engine.hero.position[1] - center_y
             if self.game_engine.hero.position[1] > sprites_in_area_y - center_y:
-                min_y = sprites_in_area_y - 2 * center_y
+                min_y = sprites_in_area_y - 2*center_y
 
         self.fill(colors["wooden"])
         self.draw_map((min_x, min_y))
         for obj in self.game_engine.objects:
-            self.blit(obj.sprite[0], ((obj.position[0] - min_x) * self.game_engine.sprite_size,
-                                      (obj.position[1] - min_y) * self.game_engine.sprite_size))
+             self.blit(obj.sprite[0], ((obj.position[0] - min_x) * self.game_engine.sprite_size,
+                                       (obj.position[1] - min_y) * self.game_engine.sprite_size))
         self.draw_hero((min_x, min_y), sprite_size)
 
         canvas.blit(self.successor, self.next_coord)
@@ -123,7 +120,6 @@ class MiniMap(ScreenHandle):
         if self.engine.map:
             for i in range(len(self.engine.map)):
                 for j in range(len(self.engine.map[0])):
-                    a = self.engine.map[i][j]
                     if self.engine.map[i][j][1] == 'wall':
                         color = colors['wall']
                     else:
@@ -165,64 +161,68 @@ class ProgressBar(ScreenHandle):
 
     def draw(self, canvas):
         self.fill(colors["wooden"])
-        pygame.draw.rect(self, colors["black"], (50, 30, 200, 30), 2)
-        pygame.draw.rect(self, colors["black"], (50, 70, 200, 30), 2)
+        pygame.draw.rect(self, colors["black"], (50, 60, 200, 30), 2)
+        pygame.draw.rect(self, colors["black"], (50, 100, 200, 30), 2)
 
-        pygame.draw.rect(self, colors[
-                         "red"], (50, 30, 200 * self.engine.hero.hp / self.engine.hero.max_hp, 30))
-        pygame.draw.rect(self, colors["green"], (50, 70,
-                                                 200 * self.engine.hero.exp / (100 * (2**(self.engine.hero.level - 1))), 30))
+        red_hp_color = int(2 * 255 * (self.engine.hero.max_hp - self.engine.hero.hp) / self.engine.hero.max_hp)
+        if red_hp_color > 255: red_hp_color = 255
+        green_hp_color = int(255 * (self.engine.hero.hp / self.engine.hero.max_hp))
+        hp_color = (red_hp_color, green_hp_color, 0, 255)
+        pygame.draw.rect(self, hp_color, (53, 62, 196 * self.engine.hero.hp / self.engine.hero.max_hp, 26))
+        pygame.draw.rect(self, colors["green"], (53, 102,
+                                                 196 * self.engine.hero.exp / (100 * (2**(self.engine.hero.level - 1))), 26))
 
-        font = pygame.font.SysFont("comicsansms", 20)
+        font = pygame.font.SysFont("sans", 22)
         self.blit(font.render(f'Hero at {self.engine.hero.position}', True, colors["black"]),
-                  (250, 0))
+                  (300, 20))
 
         self.blit(font.render(f'{self.engine.level} floor', True, colors["black"]),
-                  (10, 0))
+                  (50, 20))
 
         self.blit(font.render(f'HP', True, colors["black"]),
-                  (10, 30))
+                  (10, 62))
         self.blit(font.render(f'Exp', True, colors["black"]),
-                  (10, 70))
+                  (10, 102))
 
         self.blit(font.render(f'{self.engine.hero.hp}/{self.engine.hero.max_hp}', True, colors["black"]),
-                  (60, 30))
+                  (60, 62))
         self.blit(font.render(f'{self.engine.hero.exp}/{(100*(2**(self.engine.hero.level-1)))}', True, colors["black"]),
-                  (60, 70))
+                  (60, 102))
 
         self.blit(font.render(f'Level', True, colors["black"]),
-                  (300, 30))
+                  (300, 60))
         self.blit(font.render(f'Gold', True, colors["black"]),
-                  (300, 70))
+                  (300, 100))
 
         self.blit(font.render(f'{self.engine.hero.level}', True, colors["black"]),
-                  (360, 30))
+                  (360, 60))
         self.blit(font.render(f'{self.engine.hero.gold}', True, colors["black"]),
-                  (360, 70))
+                  (360, 100))
 
         self.blit(font.render(f'Str', True, colors["black"]),
-                  (420, 30))
+                  (420, 60))
         self.blit(font.render(f'Luck', True, colors["black"]),
-                  (420, 70))
+                  (420, 100))
 
         self.blit(font.render(f'{self.engine.hero.stats["strength"]}', True, colors["black"]),
-                  (480, 30))
+                  (480, 60))
         self.blit(font.render(f'{self.engine.hero.stats["luck"]}', True, colors["black"]),
-                  (480, 70))
+                  (480, 100))
 
         self.blit(font.render(f'SCORE', True, colors["black"]),
-                  (550, 30))
-        self.blit(font.render(f'{self.engine.score:.4f}', True, colors["black"]),
-                  (550, 70))
+                  (550, 60))
+        self.blit(font.render(f'{self.engine.score:.2f}', True, colors["black"]),
+                  (550, 100))
 
-    # draw next surface in chain
+        canvas.blit(self.successor, self.next_coord)
+        self.successor.draw(canvas)
 
 
 class InfoWindow(ScreenHandle):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.len = 30
+        self.len = 18
         clear = []
         self.data = collections.deque(clear, maxlen=self.len)
 
@@ -233,12 +233,13 @@ class InfoWindow(ScreenHandle):
         self.fill(colors["wooden"])
         size = self.get_size()
 
-        font = pygame.font.SysFont("comicsansms", 10)
+        font = pygame.font.SysFont("sans", 18)
         for i, text in enumerate(self.data):
             self.blit(font.render(text, True, colors["black"]),
-                      (5, 20 + 18 * i))
+                      (15, 20 + 24 * i))
 
-        super().draw(canvas)
+        canvas.blit(self.successor, self.next_coord)
+        self.successor.draw(canvas)
 
     def connect_engine(self, engine):
         self.engine = engine
@@ -253,37 +254,36 @@ class HelpWindow(ScreenHandle):
         self.len = 30
         clear = []
         self.data = collections.deque(clear, maxlen=self.len)
-        self.data.append([" →", "Move Right"])
-        self.data.append([" ←", "Move Left"])
-        self.data.append([" ↑ ", "Move Top"])
-        self.data.append([" ↓ ", "Move Bottom"])
-        self.data.append([" H ", "Show Help"])
-        self.data.append(["Num+", "Zoom +"])
-        self.data.append(["Num-", "Zoom -"])
-        self.data.append([" R ", "Restart Game"])
-    # FIXME You can add some help information
+        self.data.append([" →  ", "Move Right"])
+        self.data.append([" ←  ", "Move Left"])
+        self.data.append(["  ↑ ", "Move Top"])
+        self.data.append(["  ↓ ", "Move Bottom"])
+        self.data.append(["", ""])
+        self.data.append(["  H ", "Show / Hide Help"])
+        self.data.append(["  M ", "Show / Hide Minimap"])
+        self.data.append(["", ""])
+        self.data.append(["Num +", "Zoom +"])
+        self.data.append(["Num -", "Zoom -"])
+        self.data.append(["  0 ", "Zoom Default"])
+        self.data.append(["", ""])
+        self.data.append(["  R ", "Restart Game"])
 
     def connect_engine(self, engine):
         self.engine = engine
-        if self.successor is not None:
-            self.successor.connect_engine(engine)
-
+        self.successor.connect_engine(engine)
 
     def draw(self, canvas):
         alpha = 0
         if self.engine.show_help:
-            alpha = 128
+            alpha = 180
         self.fill((0, 0, 0, alpha))
         size = self.get_size()
-        font1 = pygame.font.SysFont("courier", 24)
-        font2 = pygame.font.SysFont("serif", 24)
+        font = pygame.font.SysFont("sans", 20)
         if self.engine.show_help:
-            pygame.draw.lines(self, (255, 0, 0, 255), True, [
-                              (0, 0), (700, 0), (700, 500), (0, 500)], 5)
             for i, text in enumerate(self.data):
-                self.blit(font1.render(text[0], True, ((128, 128, 255))),
-                          (50, 50 + 30 * i))
-                self.blit(font2.render(text[1], True, ((128, 128, 255))),
-                          (150, 50 + 30 * i))
-
-        super().draw(canvas)
+                self.blit(font.render(text[0], True, (colors["help"])),
+                          (150, 100 + 25 * i))
+                self.blit(font.render(text[1], True, (colors["help"])),
+                          (250, 100 + 25 * i))
+        canvas.blit(self.successor, self.next_coord)
+        self.successor.draw(canvas)

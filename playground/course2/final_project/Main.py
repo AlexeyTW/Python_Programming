@@ -5,8 +5,8 @@ import ScreenEngine as SE
 import Logic
 import Service
 
-
-SCREEN_DIM = (800, 600)
+SCREEN_DIM = (800, 640)
+SPRITE_SIZE = 40
 GAME_CANVAS = (640, 480)
 
 pygame.init()
@@ -36,15 +36,12 @@ def create_game(sprite_size, is_new):
         Service.reload_game(engine, hero)
 
         drawer = SE.GameSurface(GAME_CANVAS, pygame.SRCALPHA, (GAME_CANVAS[0], GAME_CANVAS[1]),
-                                SE.MiniMap((SCREEN_DIM[0] - GAME_CANVAS[0], SCREEN_DIM[1] - GAME_CANVAS[1]),
-                                           pygame.SRCALPHA, (0, GAME_CANVAS[1]),
-                                           SE.ProgressBar((GAME_CANVAS[0], SCREEN_DIM[1] - GAME_CANVAS[1] + 40),
-                                                          (GAME_CANVAS[0], 0),
-                                                          SE.InfoWindow(
-                                                              (SCREEN_DIM[0] - GAME_CANVAS[0], GAME_CANVAS[1]), (0, 0),
-                                                              SE.HelpWindow(SCREEN_DIM, pygame.SRCALPHA, (0, 0),
-                                                                            SE.ScreenHandle((0, 0)
-                                                                                            ))))))
+                 SE.MiniMap((SCREEN_DIM[0]-GAME_CANVAS[0], SCREEN_DIM[1]-GAME_CANVAS[1]), pygame.SRCALPHA, (0, GAME_CANVAS[1]),
+                 SE.ProgressBar((GAME_CANVAS[0], SCREEN_DIM[1]-GAME_CANVAS[1]+40), (GAME_CANVAS[0], 0),
+                 SE.InfoWindow((SCREEN_DIM[0]-GAME_CANVAS[0], GAME_CANVAS[1]), (0, 0),
+                 SE.HelpWindow(SCREEN_DIM, pygame.SRCALPHA, (0, 0),
+                 SE.ScreenHandle((0, 0)
+                 ))))))
 
     else:
         engine.sprite_size = sprite_size
@@ -54,12 +51,15 @@ def create_game(sprite_size, is_new):
 
     Logic.GameEngine.sprite_size = sprite_size
 
+    engine.show_minimap = True
+    engine.show_help = False
+
     drawer.connect_engine(engine)
 
     iteration = 0
 
 
-size = 60
+size = SPRITE_SIZE
 create_game(size, True)
 
 while engine.working:
@@ -71,11 +71,16 @@ while engine.working:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_h:
                     engine.show_help = not engine.show_help
+                if event.key == pygame.K_m:
+                    engine.show_minimap = not engine.show_minimap
                 if event.key == pygame.K_KP_PLUS:
-                    size = size + 1
+                    size += 2 if size <64 else 0
                     create_game(size, False)
                 if event.key == pygame.K_KP_MINUS:
-                    size = size - 1
+                    size -= 2 if size >16 else 0
+                    create_game(size, False)
+                if event.key == pygame.K_0 or event.key == pygame.K_KP0 :
+                    size = SPRITE_SIZE
                     create_game(size, False)
                 if event.key == pygame.K_r:
                     create_game(size, True)
