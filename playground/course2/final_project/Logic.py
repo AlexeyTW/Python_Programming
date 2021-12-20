@@ -11,6 +11,7 @@ class GameEngine:
     score = 0.
     game_process = True
     show_help = False
+    show_minimap = True
 
     def subscribe(self, obj):
         self.subscribers.add(obj)

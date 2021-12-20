@@ -1,12 +1,13 @@
 import pygame
 import os
 import Objects
-import ScreenEngine
+import ScreenEngine as SE
 import Logic
 import Service
 
 
 SCREEN_DIM = (800, 600)
+GAME_CANVAS = (640, 480)
 
 pygame.init()
 gameDisplay = pygame.display.set_mode(SCREEN_DIM)
@@ -33,14 +34,17 @@ def create_game(sprite_size, is_new):
         engine = Logic.GameEngine()
         Service.service_init(sprite_size)
         Service.reload_game(engine, hero)
-        with ScreenEngine as SE:
-            drawer = SE.GameSurface((640, 480), pygame.SRCALPHA, (0, 480),
-                                    SE.ProgressBar((640, 120), (640, 0),
-                                                   SE.InfoWindow((160, 600), (50, 50),
-                                                                 SE.HelpWindow((700, 500), pygame.SRCALPHA, (0, 0),
-                                                                               SE.ScreenHandle(
-                                                                                   (0, 0))
-                                                                               ))))
+
+        drawer = SE.GameSurface(GAME_CANVAS, pygame.SRCALPHA, (GAME_CANVAS[0], GAME_CANVAS[1]),
+                                SE.MiniMap((SCREEN_DIM[0] - GAME_CANVAS[0], SCREEN_DIM[1] - GAME_CANVAS[1]),
+                                           pygame.SRCALPHA, (0, GAME_CANVAS[1]),
+                                           SE.ProgressBar((GAME_CANVAS[0], SCREEN_DIM[1] - GAME_CANVAS[1] + 40),
+                                                          (GAME_CANVAS[0], 0),
+                                                          SE.InfoWindow(
+                                                              (SCREEN_DIM[0] - GAME_CANVAS[0], GAME_CANVAS[1]), (0, 0),
+                                                              SE.HelpWindow(SCREEN_DIM, pygame.SRCALPHA, (0, 0),
+                                                                            SE.ScreenHandle((0, 0)
+                                                                                            ))))))
 
     else:
         engine.sprite_size = sprite_size
