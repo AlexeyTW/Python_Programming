@@ -1,7 +1,7 @@
 import re
 
 #text = """loremc-=a+10ipsuma-=adb+=10olorsitameta=1cdma=b+100.' \
-text = """	a=1 b=2 c=3
+text = """	loremc-=a+10ipsuma-=adb+=10olorsitameta=1cdma=b+100. a=1 b=2 c=3
     a=+1
     a=-1
     a=b
@@ -14,5 +14,5 @@ matches = re.findall(r"([abc])([-+]?=)([abc]|[-+]?\d+)([-+]?\d+)?", text)  # Е�
 for v1, s, v2, n in matches:  # Если кортеж такой структуры: var1, [sign]=, [var2], [[+-]number]
 	# Если бы могло быть только =, вообще одной строкой все считалось бы, вот так:
 	#data[v1] = data.get(v2, 0) + int(n or 0)
-	print(v1, s, v2, n)
+	print(v1, s, v2, n, sep=';')
 
