@@ -18,10 +18,14 @@ def parse(path_to_file):
 			a_list.append(count_siblings(i))
 		a_max_len = sorted(a_list)[-1]
 
+		lists_source = [l for l in soup.find_all('ul')]
+		lst = lists_source[6]
+
 		#print(a.find_next_sibling())
-		#print(a)
-		#print(count_siblings(a))
-	print(img_count, headers_count, a_max_len)
+		#print(soup)
+		print(lst)
+		print(lst.find_parent().name)
+	#print(img_count, headers_count, a_max_len)
 
 
 def count_siblings(a, c=1):
@@ -30,6 +34,12 @@ def count_siblings(a, c=1):
 		count += 1
 		a_next = a.find_next_sibling()
 		return count_siblings(a_next, count)
+	return count
+
+def count_parent_lists(lst):
+	count = 0
+	if lst.find_parent().name not in ['ul', 'ol']:
+		count += 1
 	return count
 
 
