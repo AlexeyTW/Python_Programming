@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 import re
 import os
+import glob
 
 def parse(path_to_file):
 	with open(path_to_file, 'r', encoding='utf-8') as file:
@@ -46,29 +47,28 @@ def filter_links(link: str):
 		return True
 
 def build_bridge(path, start_page, end_page):
-	#print(f'Start: {start_page}, end: {end_page}')
-	route = [start_page]
-	if start_page == end_page:
-		return route
-	with open(os.path.join(path, start_page), 'rb') as file:
-		data = file.read()
-		soup = BeautifulSoup(data, 'lxml')
-		links = [i.get('href') for i in soup.find_all('a')]
-		wiki_links = [i for i in filter(filter_links, links)]
-		print(wiki_links)
-		if end_page in wiki_links:
+	graph = {}
+	for file in glob.glob(path + '*'):
+		with open(os.path.join(path, file.split('\\')[-1]), 'rb') as source:
+			file_data = source.read()
+			soup = BeautifulSoup(file_data, 'lxml')
+			links = [i.get('href') for i in soup.find_all('a')]
+			wiki_links = [i for i in filter(filter_links, links)]
+			print(wiki_links)
+
+
+		#print(wiki_links)
+		'''if end_page in wiki_links:
 			route.append(end_page)
 			return route
 		for link in wiki_links:
-			#build_bridge('wiki', link.split('/')[-1], end_page)
-			print(link)
+			build_bridge('wiki', link.split('/')[-1], end_page)
+	return route'''
 
-		print(route)
+		#print(route)
 		#print([i for i in links if i is not None and filter_links(i)])
 
-
-
-
-build_bridge('wiki', 'The_New_York_Times', 'Stone_Age')
+build_bridge('wiki/', 'The_New_York_Times', 'Stone_Age')
 #parse('wiki/Spectrogram')
-#print(os.path.exists('wiki/London'))
+
+
