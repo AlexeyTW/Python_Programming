@@ -46,29 +46,56 @@ def filter_links(link: str):
 	if link is not None and link.startswith('/wiki') and os.path.exists(link[1:]):
 		return True
 
-def build_bridge(path, start_page, end_page):
+graph = {'Iron_Age': ['Stone_Age', 'The_New_York_Times', 'Stone_Age', 'Iron_Age', 'Iron_Age'],
+		'London': ['Woolwich', 'Woolwich', 'London', 'London'],
+		'Stone_Age': ['Iron_Age', 'Iron_Age', 'Iron_Age', 'Stone_Age', 'Stone_Age'],
+		'The_New_York_Times': ['London', 'The_New_York_Times', 'The_New_York_Times'],
+		'Woolwich': ['London', 'Iron_Age', 'Woolwich', 'Woolwich']}
+
+
+def build_bridge(path, start_page, end_page, route=[]):
 	graph = {}
+	route = route + [start_page]
+	shortest = None
 	for file in glob.glob(path + '*'):
 		with open(os.path.join(path, file.split('\\')[-1]), 'rb') as source:
 			file_data = source.read()
 			soup = BeautifulSoup(file_data, 'lxml')
 			links = [i.get('href') for i in soup.find_all('a')]
-			wiki_links = [i for i in filter(filter_links, links)]
-			print(wiki_links)
+			wiki_links = [i.split('/')[-1] for i in filter(filter_links, links)]
+			graph[source.name.split('/')[-1]] = wiki_links
+
+	print(graph)
+
+	for node in graph[start_page]:
+		if node not in route:
+			newpath = build_bridge(path, node, end_page, route)
+			if newpath:
+				if not shortest or len(route) < len(shortest):
+					shortest = newpath
+
+	return shortest
 
 
-		#print(wiki_links)
-		'''if end_page in wiki_links:
-			route.append(end_page)
-			return route
-		for link in wiki_links:
-			build_bridge('wiki', link.split('/')[-1], end_page)
-	return route'''
+def find_shortest_path(graph, start, end, path=[]):
+	path = path + [start]
+	if start == end:
+		return path
+	if start not in graph.keys():
+		return None
+	shortest = None
+	for node in graph[start]:
+		if node not in path:
+			newpath = find_shortest_path(graph, node, end, path)
+			if newpath:
+				if not shortest or len(newpath) < len(shortest):
+					shortest = newpath
+	return shortest
 
 		#print(route)
 		#print([i for i in links if i is not None and filter_links(i)])
 
-build_bridge('wiki/', 'The_New_York_Times', 'Stone_Age')
+print(find_shortest_path(graph, 'The_New_York_Times', 'Stone_Age'))
 #parse('wiki/Spectrogram')
 
 
