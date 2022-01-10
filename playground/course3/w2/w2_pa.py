@@ -44,12 +44,14 @@ def count_parent_lists(lists):
 	return count
 
 def filter_links(link: str):
-	if link is not None and link.startswith('/wiki') and os.path.exists('C:/Temp/' + link[1:]):
+	if link is not None and link.startswith('/wiki') and os.path.exists('D:/Temp/' + link[1:]):
 		return True
 
 
 def build_bridge(path, start_page, end_page):
 	graph = {}
+	graph_map = {}
+	c = 0
 	for file in glob.glob(path + '*'):
 		with open(os.path.join(path, file.split('\\')[-1]), 'rb') as source:
 			file_data = source.read()
@@ -58,6 +60,13 @@ def build_bridge(path, start_page, end_page):
 			links = [i.get('href') for i in soup.find_all('a')]
 			wiki_links = list(set([i.split('/')[-1] for i in filter(filter_links, links)]))
 			graph[name] = wiki_links
+			graph_map[name] = c
+			c += 1
+
+	print(graph_map)
+	print(graph.items())
+
+
 
 	def find_shortest_path(graph, start, end, route=[]):
 		route = route + [start]
@@ -74,7 +83,7 @@ def build_bridge(path, start_page, end_page):
 					shortest = newpath
 		return shortest
 
-	return find_shortest_path(graph, start_page, end_page)
+	return #graph #find_shortest_path(graph, start_page, end_page)
 
 
 '''
@@ -93,10 +102,8 @@ def build_bridge(path, start_page, end_page):
 					shortest = newpath
 		return shortest
 '''
-PATH = 'C:/Temp/wiki/'
+PATH = 'D:/Temp/wiki/'
 
 print(build_bridge(PATH, 'The_New_York_Times', 'Stone_Age'))
 #parse('wiki/Wild_Arms_(video_game)')
-
-
 
