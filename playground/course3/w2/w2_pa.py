@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 import re
 import os
 import glob
+import pickle
 
 def parse(path_to_file):
 	with open(path_to_file, 'r', encoding='utf-8') as file:
@@ -43,59 +44,59 @@ def count_parent_lists(lists):
 	return count
 
 def filter_links(link: str):
-	if link is not None and link.startswith('/wiki') and os.path.exists(link[1:]):
+	if link is not None and link.startswith('/wiki') and os.path.exists('C:/Temp/' + link[1:]):
 		return True
 
-graph = {'Iron_Age': ['Stone_Age', 'The_New_York_Times', 'Stone_Age', 'Iron_Age', 'Iron_Age'],
-		'London': ['Woolwich', 'Woolwich', 'London', 'London'],
-		'Stone_Age': ['Iron_Age', 'Iron_Age', 'Iron_Age', 'Stone_Age', 'Stone_Age'],
-		'The_New_York_Times': ['London', 'The_New_York_Times', 'The_New_York_Times'],
-		'Woolwich': ['London', 'Iron_Age', 'Woolwich', 'Woolwich']}
 
-
-def build_bridge(path, start_page, end_page, route=[]):
+def build_bridge(path, start_page, end_page):
 	graph = {}
-	route = route + [start_page]
-	shortest = None
 	for file in glob.glob(path + '*'):
 		with open(os.path.join(path, file.split('\\')[-1]), 'rb') as source:
 			file_data = source.read()
+			name = source.name.split('/')[-1]
 			soup = BeautifulSoup(file_data, 'lxml')
 			links = [i.get('href') for i in soup.find_all('a')]
-			wiki_links = [i.split('/')[-1] for i in filter(filter_links, links)]
-			graph[source.name.split('/')[-1]] = wiki_links
+			wiki_links = list(set([i.split('/')[-1] for i in filter(filter_links, links)]))
+			graph[name] = wiki_links
 
-	print(graph)
-
-	for node in graph[start_page]:
-		if node not in route:
-			newpath = build_bridge(path, node, end_page, route)
-			if newpath:
-				if not shortest or len(route) < len(shortest):
-					shortest = newpath
-
-	return shortest
-
-
-def find_shortest_path(graph, start, end, path=[]):
-	path = path + [start]
-	if start == end:
-		return path
-	if start not in graph.keys():
-		return None
-	shortest = None
-	for node in graph[start]:
-		if node not in path:
-			newpath = find_shortest_path(graph, node, end, path)
-			if newpath:
+	def find_shortest_path(graph, start, end, route=[]):
+		route = route + [start]
+		if start == end:
+			return route
+		if start not in graph.keys():
+			return None
+		shortest = None
+		for node in graph[start]:
+			if node not in route:
+				newpath = find_shortest_path(graph, node, end, route)
+				#if newpath:
 				if not shortest or len(newpath) < len(shortest):
 					shortest = newpath
-	return shortest
+		return shortest
 
-		#print(route)
-		#print([i for i in links if i is not None and filter_links(i)])
+	return find_shortest_path(graph, start_page, end_page)
 
-print(find_shortest_path(graph, 'The_New_York_Times', 'Stone_Age'))
-#parse('wiki/Spectrogram')
+
+'''
+	def find_shortest_path(graph, start, end, route):
+		route = route + [start]
+		if start == end:
+			return route
+		if start not in graph.keys():
+			return None
+		shortest = None
+		for node in graph[start]:
+			if node not in route:
+				newpath = find_shortest_path(graph, node, end, route)
+				#if newpath:
+				if not shortest or len(newpath) < len(shortest):
+					shortest = newpath
+		return shortest
+'''
+PATH = 'C:/Temp/wiki/'
+
+print(build_bridge(PATH, 'The_New_York_Times', 'Stone_Age'))
+#parse('wiki/Wild_Arms_(video_game)')
+
 
 
