@@ -44,7 +44,7 @@ def count_parent_lists(lists):
 	return count
 
 def filter_links(link: str):
-	if link is not None and link.startswith('/wiki') and os.path.exists('D:/Temp/' + link[1:]):
+	if link is not None and link.startswith('/wiki') and os.path.exists('C:/Temp/' + link[1:]):
 		return True
 
 
@@ -64,26 +64,35 @@ def build_bridge(path, start_page, end_page):
 			c += 1
 
 	print(graph_map)
-	print(graph.items())
+	print(graph)
+
+	m = [[0 for j in range(len(graph))] for i in range(len(graph))]
+
+	for key in graph.keys():
+		for value in graph[key]:
+			if key != value:
+				m[graph_map[key]][graph_map[value]] = 1
+
+	print(graph_map)
+	print(graph)
+	for i in range(len(m)):
+		print(m[i], list(graph_map.keys())[i], i)
 
 
+	def find_shortest_path(matrix, start_page, end_page, route=[]):
+		route = route + [end_page]
+		page_ind = graph_map[end_page]
+		page_refs = [i for i in range(len(matrix)) if matrix[i][page_ind] == 1]
+		matrix[page_ind] = [0 for i in range(len(matrix))]
+		if graph_map[start_page] not in page_refs:
+			for ref in page_refs:
+				end_page = list(graph.keys())[ref]
+				return find_shortest_path(matrix, start_page, end_page, route)
+		return route
 
-	def find_shortest_path(graph, start, end, route=[]):
-		route = route + [start]
-		if start == end:
-			return route
-		if start not in graph.keys():
-			return None
-		shortest = None
-		for node in graph[start]:
-			if node not in route:
-				newpath = find_shortest_path(graph, node, end, route)
-				#if newpath:
-				if not shortest or len(newpath) < len(shortest):
-					shortest = newpath
-		return shortest
+	route = find_shortest_path(m, start_page, end_page) + [start_page]
 
-	return #graph #find_shortest_path(graph, start_page, end_page)
+	return #route[::-1]
 
 
 '''
@@ -102,7 +111,7 @@ def build_bridge(path, start_page, end_page):
 					shortest = newpath
 		return shortest
 '''
-PATH = 'D:/Temp/wiki/'
+PATH = 'C:/Temp/wiki/'
 
 print(build_bridge(PATH, 'The_New_York_Times', 'Stone_Age'))
 #parse('wiki/Wild_Arms_(video_game)')
