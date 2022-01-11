@@ -44,7 +44,7 @@ def count_parent_lists(lists):
 	return count
 
 def filter_links(link: str):
-	if link is not None and link.startswith('/wiki') and os.path.exists('C:/Temp/' + link[1:]):
+	if link is not None and link.startswith('/wiki') and os.path.exists('D:/Temp/' + link[1:]):
 		return True
 
 
@@ -52,19 +52,19 @@ def build_bridge(path, start_page, end_page):
 	graph = {}
 	graph_map = {}
 	c = 0
-	for file in glob.glob(path + '*'):
-		with open(os.path.join(path, file.split('\\')[-1]), 'rb') as source:
+	file_names = [i.split('\\')[-1] for i in glob.glob(path + '*')]
+	for name in file_names:
+		with open(os.path.join(path, name), 'rb') as source:
 			file_data = source.read()
-			name = source.name.split('/')[-1]
 			soup = BeautifulSoup(file_data, 'lxml')
 			links = [i.get('href') for i in soup.find_all('a')]
-			wiki_links = list(set([i.split('/')[-1] for i in filter(filter_links, links)]))
+			wiki_links = list(set([i.split('/')[-1] for i in filter(filter_links, links) if i.split('/')[-1] in file_names]))
 			graph[name] = wiki_links
 			graph_map[name] = c
 			c += 1
 
-	print(graph_map)
-	print(graph)
+	#print(graph_map)
+	#print(graph)
 
 	m = [[0 for j in range(len(graph))] for i in range(len(graph))]
 
@@ -73,11 +73,8 @@ def build_bridge(path, start_page, end_page):
 			if key != value:
 				m[graph_map[key]][graph_map[value]] = 1
 
-	print(graph_map)
-	print(graph)
-	for i in range(len(m)):
-		print(m[i], list(graph_map.keys())[i], i)
-
+	#for i in range(len(m)):
+		#print(m[i], list(graph_map.keys())[i], i)
 
 	def find_shortest_path(matrix, start_page, end_page, route=[]):
 		route = route + [end_page]
@@ -92,7 +89,7 @@ def build_bridge(path, start_page, end_page):
 
 	route = find_shortest_path(m, start_page, end_page) + [start_page]
 
-	return #route[::-1]
+	return route[::-1]
 
 
 '''
@@ -111,7 +108,7 @@ def build_bridge(path, start_page, end_page):
 					shortest = newpath
 		return shortest
 '''
-PATH = 'C:/Temp/wiki/'
+PATH = 'D:/Temp/wiki/'
 
 print(build_bridge(PATH, 'The_New_York_Times', 'Stone_Age'))
 #parse('wiki/Wild_Arms_(video_game)')
