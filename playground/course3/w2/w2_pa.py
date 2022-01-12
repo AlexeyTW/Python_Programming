@@ -44,7 +44,7 @@ def count_parent_lists(lists):
 	return count
 
 def filter_links(link: str):
-	if link is not None and link.startswith('/wiki') and os.path.exists('D:/Temp/' + link[1:]):
+	if link is not None and link.startswith('/wiki') and os.path.exists('C:/Temp/' + link[1:]):
 		return True
 
 
@@ -66,31 +66,38 @@ def build_bridge(path, start_page, end_page):
 	#print(graph_map)
 	#print(graph)
 
-	m = [[0 for j in range(len(graph))] for i in range(len(graph))]
+	#m = [[0 for j in range(len(graph))] for i in range(len(graph))]
 
-	for key in graph.keys():
-		for value in graph[key]:
-			if key != value:
-				m[graph_map[key]][graph_map[value]] = 1
+	#for key in graph.keys():
+	#	for value in graph[key]:
+	#		if key != value:
+	#			m[graph_map[key]][graph_map[value]] = 1
 
-	#for i in range(len(m)):
-		#print(m[i], list(graph_map.keys())[i], i)
+	def find_shortest_path(graph, start_page, end_page):
+		visited = []
+		queue = [[start_page]]
+		if start_page == end_page:
+			return [start_page]
+		while queue:
+			route = queue.pop(-1)
+			node = route[-1]
+			if node not in visited:
+				neighbours = graph[node]
+				for neighbour in neighbours:
+					if neighbour != route[-1]:
+						new_path = list(route)
+						new_path.append(neighbour)
+						queue.append(new_path)
+						if neighbour == end_page:
+							return new_path
+			visited.append(node)
 
-	def find_shortest_path(matrix, start_page, end_page, route=[]):
-		route = route + [end_page]
-		page_ind = graph_map[end_page]
-		page_refs = [i for i in range(len(matrix)) if matrix[i][page_ind] == 1]
-		matrix[page_ind] = [0 for i in range(len(matrix))]
-		if graph_map[start_page] not in page_refs:
-			for ref in page_refs:
-				end_page = list(graph.keys())[ref]
-				return find_shortest_path(matrix, start_page, end_page, route)
-		return route
+	return find_shortest_path(graph, start_page, end_page)
 
-	route = find_shortest_path(m, start_page, end_page) + [start_page]
+PATH = 'C:/Temp/wiki/'
 
-	return route[::-1]
-
+print(build_bridge(PATH, 'Artificial_intelligence', 'Mei_Kurokawa'))
+#parse('wiki/Wild_Arms_(video_game)')
 
 '''
 	def find_shortest_path(graph, start, end, route):
@@ -107,9 +114,21 @@ def build_bridge(path, start_page, end_page):
 				if not shortest or len(newpath) < len(shortest):
 					shortest = newpath
 		return shortest
-'''
-PATH = 'D:/Temp/wiki/'
+		
+		
+		route = route + [end_page]
+		page_ind = graph_map[end_page]
+		page_refs = [i for i in range(len(matrix)) if matrix[i][page_ind] == 1]
+		if graph_map[start_page] in page_refs:
+			return route
+		matrix[page_ind] = [0 for i in range(len(matrix))]
+		if graph_map[start_page] not in page_refs:
+			for ref in page_refs:
+				end_page = list(graph.keys())[ref]
+				find_shortest_path(matrix, start_page, end_page, route)
+		return route
 
-print(build_bridge(PATH, 'The_New_York_Times', 'Stone_Age'))
-#parse('wiki/Wild_Arms_(video_game)')
+	route = find_shortest_path(m, start_page, end_page)
+'''
+
 
