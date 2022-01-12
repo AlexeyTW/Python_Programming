@@ -44,10 +44,11 @@ def count_parent_lists(lists):
 	return count
 
 def filter_links(link: str):
-	if link is not None and link.startswith('/wiki') and os.path.exists('C:/Temp/' + link[1:]):
+	if link is not None and link.startswith('/wiki') and os.path.exists('D:/Temp/' + link[1:]):
 		return True
 
-
+visited = []
+routes = []
 def build_bridge(path, start_page, end_page):
 	graph = {}
 	graph_map = {}
@@ -58,7 +59,8 @@ def build_bridge(path, start_page, end_page):
 			file_data = source.read()
 			soup = BeautifulSoup(file_data, 'lxml')
 			links = [i.get('href') for i in soup.find_all('a')]
-			wiki_links = list(set([i.split('/')[-1] for i in filter(filter_links, links) if i.split('/')[-1] in file_names]))
+			wiki_links = list(set([i.split('/')[-1] for i in filter(filter_links, links)
+								   if i.split('/')[-1] in file_names and i.split('/')[-1] != name]))
 			graph[name] = wiki_links
 			graph_map[name] = c
 			c += 1
@@ -73,30 +75,35 @@ def build_bridge(path, start_page, end_page):
 	#		if key != value:
 	#			m[graph_map[key]][graph_map[value]] = 1
 
-	def find_shortest_path(graph, start_page, end_page):
-		visited = []
-		queue = [[start_page]]
-		if start_page == end_page:
-			return [start_page]
-		while queue:
-			route = queue.pop(-1)
-			node = route[-1]
+
+	def find_shortest_path(graph, start, end, route=[]):
+		global visited
+		route = route + [start]
+		visited.append(start)
+		if start == end:
+			return route
+		if start not in graph.keys():
+			return None
+		for node in graph[start]:
 			if node not in visited:
-				neighbours = graph[node]
-				for neighbour in neighbours:
-					if neighbour != route[-1]:
-						new_path = list(route)
-						new_path.append(neighbour)
-						queue.append(new_path)
-						if neighbour == end_page:
-							return new_path
-			visited.append(node)
+				if end in graph[node]:
+					route = route + [node] + [end]
+					print(route)
+					if len(routes) == 0:
+						routes.append(route)
+					elif route < routes[0]:
+						routes.clear()
+						routes.append(route)
+				else:
+					find_shortest_path(graph, node, end, route)
+		return routes
 
 	return find_shortest_path(graph, start_page, end_page)
 
-PATH = 'C:/Temp/wiki/'
+PATH = 'D:/Temp/wiki/'
 
-print(build_bridge(PATH, 'Artificial_intelligence', 'Mei_Kurokawa'))
+print(build_bridge(PATH, 'The_New_York_Times', 'Stone_Age'))
+print(routes.sort())
 #parse('wiki/Wild_Arms_(video_game)')
 
 '''
