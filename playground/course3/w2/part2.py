@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 import re
 import os
-import glob
+import time
 
 def parse(path_to_file):
 	with open(path_to_file, 'r', encoding='utf-8') as file:
@@ -41,11 +41,22 @@ def count_parent_lists(lists):
 			count += 1
 	return count
 
-def filter_links(link: str):
-	if link is not None and link.startswith('/wiki') and os.path.exists(link[1:]):
+def filter_links(link):
+	i = link.get('href')
+	if i is not None and i.startswith('/wiki'):
 		return True
 
 def build_bridge(path, start_page, end_page):
+	graph = {}
+	file_names = os.listdir(path)
+	for name in file_names:
+		with open(os.path.join(path, name), 'rb') as source:
+			file_data = source.read()
+			soup = BeautifulSoup(file_data, 'lxml')
+			links = set([i.get('href').split('/')[-1] for i in filter(filter_links, soup.find_all('a'))])
+			wiki_links = [i for i in links if i in file_names]
+			graph[name] = wiki_links
+
 	def find_shortest_path(graph, start, end):
 		dist = {start: [start]}
 		route = [start]
@@ -66,18 +77,10 @@ def get_statistics(path, start_page, end_page):
 	for page in pages:
 		stats[page] = parse(path + page)
 	return stats
+#print(build_bridge(path='grader/nar4I/tests/wiki/', start_page='Stone_Age', end_page='Python_(programming_language)'))
 
-path = '/grader/nar4I/tests/wiki/'
-
-graph = {}
-file_names = [i.split('\\')[-1] for i in glob.glob(path[1:] + '*')]
-for name in file_names:
-	with open(os.path.join(path[1:], name), 'rb') as source:
-		file_data = source.read()
-		soup = BeautifulSoup(file_data, 'lxml')
-		links = [i.get('href') for i in soup.find_all('a')]
-		wiki_links = list(set([i.split('/')[-1] for i in filter(filter_links, links)
-							   if i.split('/')[-1] in file_names and i.split('/')[-1] != name]))
-		graph[name] = wiki_links
-
-print(build_bridge(path='/grader/nar4I/tests/wiki/', start_page='Stone_Age', end_page='Python_(programming_language)'))
+t1 = time.time()
+#print(build_bridge(path='grader/nar4I/tests/wiki/', start_page='Stone_Age', end_page='Python_(programming_language)'))
+print(get_statistics('wiki/', 'The_New_York_Times', "Binyamina_train_station_suicide_bombing"))
+t2 = time.time()
+print(t2 - t1)
