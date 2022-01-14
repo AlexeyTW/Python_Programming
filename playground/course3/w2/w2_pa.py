@@ -23,7 +23,7 @@ def parse(path_to_file):
 		lists_source = [l for l in soup.find_all('ul')] + [l for l in soup.find_all('ol')]
 		lists = count_parent_lists(lists_source)
 
-	return list((imgs, headers, linkslen, lists))
+	return [imgs, headers, linkslen, lists]
 
 
 def count_siblings(a, c=1):
@@ -37,12 +37,12 @@ def count_siblings(a, c=1):
 def count_parent_lists(lists):
 	count = 0
 	for lst in lists:
-		if lst.find_parent().name not in ['li', 'ul', 'ol']:
+		if ('li' or 'ul' or 'ol') not in [i.name for i in lst.find_parents()]:
 			count += 1
 	return count
 
 def filter_links(link: str):
-	if link is not None and link.startswith('/wiki') and os.path.exists('C:/Temp/' + link[1:]):
+	if link is not None and link.startswith('/wiki') and os.path.exists(link[1:]):
 		return True
 
 def build_bridge(path, start_page, end_page):
@@ -80,9 +80,9 @@ def get_statistics(path, start_page, end_page):
 
 PATH = 'C:/Temp/wiki/'
 
-#print(build_bridge(PATH, 'The_New_York_Times', 'Stone_Age'))
+print(build_bridge(PATH, 'The_New_York_Times', 'Stone_Age'))
 
-print(parse('C:/Temp/wiki/IBM'))
+#print(parse('C:/Temp/wiki/PlayStation_3'))
 #print(get_statistics(PATH, 'The_New_York_Times', "Binyamina_train_station_suicide_bombing"))
 
 
