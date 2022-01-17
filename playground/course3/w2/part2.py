@@ -47,10 +47,29 @@ def filter_links(link):
 		return True
 
 def build_bridge(path, start_page, end_page):
-	t1 = time.time()
-	print(f'Start building graph: {t1}')
-	graph = {}
+	#t1 = time.time()
+	#print(f'Start building graph: {t1}')
 	file_names = os.listdir(path)
+	graph = {}
+	dist = {start_page: [start_page]}
+	route = [start_page]
+	while len(route):
+		at = route.pop(0)
+		if at not in graph:
+			with open(os.path.join(path, at), 'r', encoding='utf-8') as source:
+				file_data = source.read()
+				soup = BeautifulSoup(file_data, 'lxml')
+				links = set([i.get('href').split('/')[-1] for i in filter(filter_links, soup.find_all('a'))])
+				wiki_links = [i for i in links if i in file_names]
+				graph[at] = wiki_links
+		for next in graph[at]:
+			if next not in dist:
+				dist[next] = [dist[at], next]
+				route.append(next)
+	result = dist.get(end_page)
+	print(f'Graph len: {len(graph)}')
+	return str(result).replace('[', '').replace(']', '').replace("'", '').split(', ')
+	"""
 	for name in file_names:
 		with open(os.path.join(path, name), 'r', encoding='utf-8') as source:
 			file_data = source.read()
@@ -78,6 +97,7 @@ def build_bridge(path, start_page, end_page):
 
 	return find_shortest_path(graph, start_page, end_page)
 	#return graph
+"""
 
 def get_statistics(path, start_page, end_page):
 	stats = {}
@@ -88,7 +108,7 @@ def get_statistics(path, start_page, end_page):
 #print(build_bridge(path='grader/nar4I/tests/wiki/', start_page='Stone_Age', end_page='Python_(programming_language)'))
 
 t1 = time.time()
-print(build_bridge(path='wiki/', start_page='Stone_Age', end_page='Python_(programming_language)'))
+print(build_bridge('wiki/', 'The_New_York_Times', 'Stone_Age'))
 #print(get_statistics('wiki/', 'The_New_York_Times', "Binyamina_train_station_suicide_bombing"))
 t2 = time.time()
 print(t2 - t1)

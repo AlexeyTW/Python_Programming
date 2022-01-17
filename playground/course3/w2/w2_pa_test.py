@@ -4,7 +4,7 @@
 
 import unittest
 
-from w2_pa import build_bridge, get_statistics
+from teachers_solution import build_bridge, get_statistics
 
 STATISTICS = {
     'Artificial_intelligence': [8, 19, 13, 198],
