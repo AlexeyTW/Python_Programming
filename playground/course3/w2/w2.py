@@ -30,14 +30,14 @@ text = '''
 
 soup = BeautifulSoup(text, 'lxml')
 
-#print(soup.b.parent.name)
+#print([i['href'] for i in soup('link')])
 #print(soup.b.find_parent('body')['id'])
 #print(soup.p.find_next_siblings())
 #print(soup.p.contents)
 #print(list(soup.p.children))
 #print(soup.p.find('b'))
 #print(soup.find(id='js-body')['class'])
-#print(soup.find('b', text='bold'))
+print(soup.find('b', text='bold'))
 #print(soup.find_all('p'))
 #print(soup.find_all('p', 'text odd'))
 #print(soup.select('p.odd.text'))
