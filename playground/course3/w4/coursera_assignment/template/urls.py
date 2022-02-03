@@ -1,9 +1,9 @@
-from django.urls import path
+from django.conf.urls import url
 
-from .views import echo, filters, extend
+from template.views import echo, filters, extend
 
 urlpatterns = [
-    path(r'^echo/$', echo),
-    path(r'^filters/$', filters),
-    path(r'^extend/$', extend),
+    url(r'^echo/$', echo),
+    url(r'^filters/$', filters),
+    url(r'^extend/$', extend),
 ]
