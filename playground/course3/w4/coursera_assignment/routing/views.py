@@ -1,6 +1,7 @@
 from django.http import HttpResponse, HttpRequest, HttpResponseNotFound, HttpResponseBadRequest
 from django.http.response import HttpResponseNotAllowed
 from django.views.decorators.csrf import csrf_exempt
+import json
 
 @csrf_exempt
 def simple_route(request: HttpRequest):
@@ -20,23 +21,32 @@ def sum_route(request, *args, **kwargs):
 
 @csrf_exempt
 def sum_get_method(request: HttpRequest):
-	if request.method == 'GET' and len(request.GET) != 0:
-		try:
-			a = int(request.GET['a'])
-			b = int(request.GET['b'])
-		except ValueError:
+	if request.method == 'GET':
+		if len(request.GET) == 2:
+			try:
+				a = int(request.GET['a'])
+				b = int(request.GET['b'])
+			except ValueError:
+				return HttpResponseBadRequest()
+			return HttpResponse(a + b)
+		else:
 			return HttpResponseBadRequest()
-		return HttpResponse(a + b)
 	return HttpResponseNotAllowed('GET')
 
 @csrf_exempt
 def sum_post_method(request: HttpRequest):
-	print(request.content_params)
-	if request.method == 'POST' and len(request.GET) != 0:
-		try:
-			a = int(request.GET['a'])
-			b = int(request.GET['b'])
-		except ValueError:
+	print(type(request.get_raw_uri()))
+	if request.method == 'POST' and request.get_raw_uri().endswith('sum_post_method/'):
+		if len(request.POST) == 2:
+			a = request.POST.get('a')
+			b = request.POST.get('b')
+			try:
+				a = int(a)
+				b = int(b)
+			except ValueError:
+				return HttpResponseBadRequest()
+			return HttpResponse(sum([a, b]))
+		else:
 			return HttpResponseBadRequest()
-		return HttpResponse(a + b)
-	return HttpResponseNotAllowed('POST')
+	else:
+		return HttpResponseNotAllowed('POST')
