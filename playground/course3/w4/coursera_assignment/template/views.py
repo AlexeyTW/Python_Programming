@@ -2,23 +2,32 @@ from django.shortcuts import render
 from django.http import HttpResponse, HttpRequest
 from django.views.decorators.csrf import csrf_exempt
 from django.template.response import TemplateResponse
+from django.template import loader
 
 
 # Create your views here.
 def get_param(request: HttpRequest):
     if request.method == 'GET' and request.GET != {}:
-        return list(request.GET.keys())[0]
+        key = next(iter(request.GET.dict()))
+        val = request.GET[key]
+        return key, val
     if request.method == 'POST' and request.POST != {}:
-        return list(request.POST.keys())[0]
+        key = next(iter(request.POST.dict()))
+        val = request.POST[key]
+        return key, val
+    return None
 
 
 @csrf_exempt
 def echo(request: HttpRequest):
-    return TemplateResponse(request, 'echo.html', context={
-        'request_type': request.method.lower(),
-        'param': get_param(request),
-        'val': '___'
-    })
+    context = {'request_type': request.method.lower(),
+               'param': get_param(request)[0],
+               'val': get_param(request)[1]
+               }
+    #print(TemplateResponse(request, 'echo.html', context).render().content.decode())
+    request.META['X-Print-Statement'] = 'test'
+    print(request.META['X-Print-Statement'])
+    return TemplateResponse(request, 'echo.html', context)
 
 
 def filters(request):
