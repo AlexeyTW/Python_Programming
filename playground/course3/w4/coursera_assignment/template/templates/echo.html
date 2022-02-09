@@ -1,3 +1,8 @@
 {% block block_a %}
-{{ request_type }} {{param}}: {{ val }} statement is empty
+{% if param == 'None' %}
+    123
+{% else %}
+    {{request_type}} {{param}}: {{val}} statement is empty
+{% endif %}
+{{statement}}
 {% endblock %}

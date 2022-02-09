@@ -15,18 +15,21 @@ def get_param(request: HttpRequest):
         key = next(iter(request.POST.dict()))
         val = request.POST[key]
         return key, val
-    return None
+    return [None, None]
 
 
 @csrf_exempt
 def echo(request: HttpRequest):
     context = {'request_type': request.method.lower(),
-               'param': get_param(request)[0],
-               'val': get_param(request)[1]
+               'param': get_param(request)[0] or 'None',
+               'val': get_param(request)[1] or 'None',
+               'statement': request.META[('HTTP_' + 'X_Print_Statement').upper()] if
+                            ('HTTP_' + 'X_Print_Statement').upper() in request.META.keys()
+                            else 'None111'
                }
-    #print(TemplateResponse(request, 'echo.html', context).render().content.decode())
-    request.META['X-Print-Statement'] = 'test'
-    print(request.META['X-Print-Statement'])
+    print(TemplateResponse(request, 'echo.html', context).render().content.decode().strip())
+    #print(request.META['HTTP_' + 'X_Print_Statement'.upper()])
+    #print(request.META)
     return TemplateResponse(request, 'echo.html', context)
 
 
