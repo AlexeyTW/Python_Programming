@@ -25,7 +25,7 @@ def echo(request: HttpRequest):
                'val': get_param(request)[1] or 'None',
                'statement': request.META[('HTTP_' + 'X_Print_Statement').upper()] if
                             ('HTTP_' + 'X_Print_Statement').upper() in request.META.keys()
-                            else 'None111'
+                            else 'empty'
                }
     print(TemplateResponse(request, 'echo.html', context).render().content.decode().strip())
     #print(request.META['HTTP_' + 'X_Print_Statement'.upper()])

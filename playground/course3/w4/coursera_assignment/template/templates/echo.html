@@ -1,8 +1,7 @@
 {% block block_a %}
 {% if param == 'None' %}
-    123
+    statement is {{statement}}
 {% else %}
-    {{request_type}} {{param}}: {{val}} statement is empty
+    {{request_type}} {{param}}: {{val}} statement is {{statement}}
 {% endif %}
-{{statement}}
 {% endblock %}
