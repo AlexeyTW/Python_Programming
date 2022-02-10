@@ -8,7 +8,7 @@ def inc(n, diff):
     return int(n) + int(diff)
 
 
-@register.filter(name='division')
+@register.simple_tag
 def division(divd, divsr, to_int=False):
     divd = float(divd)
     divsr = float(divsr)

@@ -27,17 +27,15 @@ def echo(request: HttpRequest):
                             ('HTTP_' + 'X_Print_Statement').upper() in request.META.keys()
                             else 'empty'
                }
-    print(TemplateResponse(request, 'echo.html', context).render().content.decode().strip())
-    #print(request.META['HTTP_' + 'X_Print_Statement'.upper()])
-    #print(request.META)
+    #print(TemplateResponse(request, 'echo.html', context).render().content.decode().strip())
     return TemplateResponse(request, 'echo.html', context)
 
 
 def filters(request):
-    return render(request, 'filters.html', context={
-        'a': request.GET.get('a', 1),
-        'b': request.GET.get('b', 1)
-    })
+    context = {'a': request.GET.get('a', '10'),
+        'b': request.GET.get('b', 1)}
+    print(TemplateResponse(request, 'filters.html', context).render().content.decode().strip())
+    return render(request, 'filters.html', context)
 
 
 def extend(request):
