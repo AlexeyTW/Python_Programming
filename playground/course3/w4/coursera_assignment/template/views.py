@@ -34,12 +34,13 @@ def echo(request: HttpRequest):
 def filters(request):
     context = {'a': request.GET.get('a', '10'),
         'b': request.GET.get('b', 1)}
-    print(TemplateResponse(request, 'filters.html', context).render().content.decode().strip())
+    #print(TemplateResponse(request, 'filters.html', context).render().content.decode().strip())
     return render(request, 'filters.html', context)
 
 
 def extend(request):
+    #return render(request, 'extend.html', context={
     return render(request, 'extend.html', context={
-        'a': request.GET.get('a'),
-        'b': request.GET.get('b')
+        'a': request.GET.get('a', 12),
+        'b': request.GET.get('b', 123)
     })
