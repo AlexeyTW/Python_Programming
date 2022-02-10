@@ -3,7 +3,7 @@ from datetime import datetime
 from django.db.models import Q, Count, Avg
 from pytz import UTC
 
-from db.models import User, Blog, Topic
+from models import User, Blog, Topic
 
 
 def create():
@@ -64,3 +64,5 @@ def get_topic_that_like_all_users():
 
 def get_topic_that_dont_have_like():
     pass
+
+print(User.objects)
