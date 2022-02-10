@@ -1,3 +1,8 @@
+import os
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", 'D:\Python\Git\Python_Programming\playground\course3\w4\coursera_assignment\grader\settings.py')
+import django
+django.setup()
+
 from datetime import datetime
 
 from django.db.models import Q, Count, Avg
@@ -7,7 +12,9 @@ from models import User, Blog, Topic
 
 
 def create():
-    pass
+    for fn, sn in [('u1', 'u1'), ('u2', 'u2'), ('u3', 'u3')]:
+        user = User(first_name=fn, last_name=sn)
+        user.save()
 
 
 def edit_all():
@@ -64,5 +71,3 @@ def get_topic_that_like_all_users():
 
 def get_topic_that_dont_have_like():
     pass
-
-print(User.objects)
