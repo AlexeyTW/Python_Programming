@@ -1,8 +1,3 @@
-import os
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", 'D:\Python\Git\Python_Programming\playground\course3\w4\coursera_assignment\grader\settings.py')
-import django
-django.setup()
-
 from datetime import datetime
 
 from django.db.models import Q, Count, Avg
@@ -12,9 +7,21 @@ from models import User, Blog, Topic
 
 
 def create():
-    for fn, sn in [('u1', 'u1'), ('u2', 'u2'), ('u3', 'u3')]:
-        user = User(first_name=fn, last_name=sn)
-        user.save()
+    u1 = User(first_name='u1', last_name='u1')
+    u1.save()
+    u2 = User(first_name='u2', last_name='u2')
+    u2.save()
+    u3 = User(first_name='u3', last_name='u3')
+    u3.save()
+    blog1 = Blog(title='blog1', author_id=User.objects.filter(first_name='u1')[0].id)
+    blog1.author = u1
+    blog1.save()
+    blog2 = Blog(title='blog2', author_id=User.objects.filter(first_name='u1')[0].id)
+    blog2.author = u1
+    blog2.save()
+
+    blog1.subscribers.add(u1)
+    blog2.subscribers.add(u2)
 
 
 def edit_all():
@@ -71,3 +78,5 @@ def get_topic_that_like_all_users():
 
 def get_topic_that_dont_have_like():
     pass
+
+print(User.objects)

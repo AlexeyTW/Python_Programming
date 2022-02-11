@@ -14,7 +14,6 @@ class Blog(models.Model):
     title = models.CharField(max_length=255)
     author = models.ForeignKey(User)
     created = models.DateTimeField(default=timezone.now)
-
     subscribers = models.ManyToManyField(User, related_name='subscriptions')
 
 
@@ -23,5 +22,4 @@ class Topic(models.Model):
     blog = models.ForeignKey(Blog)
     author = models.ForeignKey(User)
     created = models.DateTimeField(default=timezone.now)
-
     likes = models.ManyToManyField(User, related_name='likes')
