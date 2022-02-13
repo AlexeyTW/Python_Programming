@@ -2,7 +2,11 @@ from datetime import datetime
 
 from django.db.models import Q, Count, Avg
 from pytz import UTC
-
+'''
+for objs in [User.objects.all(), Blog.objects.all(), Topic.objects.all()]:
+    for obj in objs:
+        obj.delete()
+'''
 from models import User, Blog, Topic
 
 
@@ -13,24 +17,40 @@ def create():
     u2.save()
     u3 = User(first_name='u3', last_name='u3')
     u3.save()
-    blog1 = Blog(title='blog1', author_id=User.objects.filter(first_name='u1')[0].id)
+    blog1 = Blog(title='blog1')
     blog1.author = u1
     blog1.save()
-    blog2 = Blog(title='blog2', author_id=User.objects.filter(first_name='u1')[0].id)
+    blog2 = Blog(title='blog2')
     blog2.author = u1
     blog2.save()
 
     blog1.subscribers.add(u1)
     blog2.subscribers.add(u2)
 
+    t1 = Topic(title='topic1')
+    t1.author = u1
+    t1.blog = blog1
+    t2 = Topic(title='topic2_content', created='2017-01-01')
+    t2.author = u3
+    t2.blog = blog1
+    t2.save()
+
+    t2.likes.add(u1)
+    t2.likes.add(u2)
+    t2.likes.add(u3)
+
 
 def edit_all():
-    pass
+    for obj in User.objects.all():
+        obj.first_name = 'uu1'
+        obj.save()
 
 
 def edit_u1_u2():
-    pass
-
+    q = User.objects.filter(Q(first_name='u1') | Q(first_name='u2'))
+    for obj in q:
+        obj.first_name = 'uu1'
+        obj.save()
 
 def delete_u1():
     pass
