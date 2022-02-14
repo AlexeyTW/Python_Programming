@@ -24,12 +24,13 @@ def create():
     blog2.author = u1
     blog2.save()
 
-    blog1.subscribers.add(u1)
+    blog1.subscribers.add(u1, u2)
     blog2.subscribers.add(u2)
 
     t1 = Topic(title='topic1')
     t1.author = u1
     t1.blog = blog1
+    t1.save()
     t2 = Topic(title='topic2_content', created='2017-01-01')
     t2.author = u3
     t2.blog = blog1
@@ -53,23 +54,28 @@ def edit_u1_u2():
         obj.save()
 
 def delete_u1():
-    pass
+    q = User.objects.filter(first_name='u1')
+    q.delete()
 
 
 def unsubscribe_u2_from_blogs():
-    pass
+    u2_users = User.objects.filter(first_name='u2')
+    for blog in Blog.objects.all():
+        for user in u2_users:
+            blog.subscribers.remove(user)
 
 
 def get_topic_created_grated():
-    pass
+    return Topic.objects.filter(created__gt = '2018-01-01')
 
 
 def get_topic_title_ended():
-    pass
+    return Topic.objects.filter(title__iendswith = 'content')
 
 
 def get_user_with_limit():
-    pass
+    sorted_users = User.objects.all().order_by('id')[::-1][:2]
+    return sorted_users
 
 
 def get_topic_count():
