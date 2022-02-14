@@ -79,23 +79,24 @@ def get_user_with_limit():
 
 
 def get_topic_count():
-    pass
+    return Blog.objects.annotate(topic_count=Count('topic')).order_by('topic_count')
 
 
 def get_avg_topic_count():
-    pass
+    return Blog.objects.annotate(avg_topic_count=Avg('topic'))
 
 
 def get_blog_that_have_more_than_one_topic():
-    pass
+    return Blog.objects.annotate(topic_count=Count('topic')).filter(topic_count__gt=1)
 
 
 def get_topic_by_u1():
-    pass
+    return Topic.objects.filter(author__first_name='u1')
 
 
 def get_user_that_dont_have_blog():
-    pass
+    authors_with_blogs = Blog.objects.values_list('author_id', flat=True).distinct()
+    return User.objects.filter().exclude(id__in=authors_with_blogs)
 
 
 def get_topic_that_like_all_users():
