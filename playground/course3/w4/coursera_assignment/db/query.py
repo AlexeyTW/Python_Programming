@@ -1,13 +1,13 @@
 from datetime import datetime
 
-from django.db.models import Q, Count, Avg
+from django.db.models import Q, Count, Avg, F, FloatField, ExpressionWrapper
 from pytz import UTC
 '''
 for objs in [User.objects.all(), Blog.objects.all(), Topic.objects.all()]:
     for obj in objs:
         obj.delete()
 '''
-from models import User, Blog, Topic
+from db.models import User, Blog, Topic
 
 
 def create():
@@ -36,10 +36,7 @@ def create():
     t2.blog = blog1
     t2.save()
 
-    t2.likes.add(u1)
-    t2.likes.add(u2)
-    t2.likes.add(u3)
-
+    t1.likes.add(u1, u2, u3)
 
 def edit_all():
     for obj in User.objects.all():
@@ -74,7 +71,7 @@ def get_topic_title_ended():
 
 
 def get_user_with_limit():
-    sorted_users = User.objects.all().order_by('id')[::-1][:2]
+    sorted_users = User.objects.all().order_by('-id')[:2]
     return sorted_users
 
 
@@ -83,7 +80,7 @@ def get_topic_count():
 
 
 def get_avg_topic_count():
-    return Blog.objects.annotate(avg_topic_count=Avg('topic'))
+    return Topic.objects.aggregate(topics=ExpressionWrapper(Count('id') / Count('blog_id'), output_field=FloatField()))
 
 
 def get_blog_that_have_more_than_one_topic():
@@ -96,14 +93,16 @@ def get_topic_by_u1():
 
 def get_user_that_dont_have_blog():
     authors_with_blogs = Blog.objects.values_list('author_id', flat=True).distinct()
-    return User.objects.filter().exclude(id__in=authors_with_blogs)
+    return User.objects.filter().exclude(id__in=authors_with_blogs).order_by('id')
 
 
 def get_topic_that_like_all_users():
-    pass
+    all_users = User.objects.values_list('id', flat=True).order_by('id')
+    for topic in Topic.objects.all():
+        topic_likes = topic.likes.values_list('id', flat=True).order_by('id')
+        if list(topic_likes) == list(all_users):
+            return topic
 
 
 def get_topic_that_dont_have_like():
-    pass
-
-print(User.objects)
+    return Topic.objects.filter(likes__isnull=True)
