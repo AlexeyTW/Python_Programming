@@ -80,7 +80,7 @@ def get_topic_count():
 
 
 def get_avg_topic_count():
-    return Topic.objects.aggregate(topics=ExpressionWrapper(Count('id') / Count('blog_id'), output_field=FloatField()))
+    return Topic.objects.aggregate(avg=ExpressionWrapper(Count('id') / Count('blog_id'), output_field=FloatField()))
 
 
 def get_blog_that_have_more_than_one_topic():
@@ -101,7 +101,7 @@ def get_topic_that_like_all_users():
     for topic in Topic.objects.all():
         topic_likes = topic.likes.values_list('id', flat=True).order_by('id')
         if list(topic_likes) == list(all_users):
-            return topic
+            return Topic.objects.filter(id=topic.id)
 
 
 def get_topic_that_dont_have_like():
