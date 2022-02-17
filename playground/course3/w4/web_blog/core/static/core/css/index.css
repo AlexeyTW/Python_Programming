@@ -6,6 +6,14 @@
     margin-bottom: 20px;
 }
 
+.category__item {
+    background-color: #f7f7f7;
+    padding: 10px;
+}
+
+.topic {
+    margin-bottom: 20px;
+}
 .test {
     font-family: "Roboto", "Lucida Grande", Verdana, Arial, sans-serif;
     font-style: Italic;
