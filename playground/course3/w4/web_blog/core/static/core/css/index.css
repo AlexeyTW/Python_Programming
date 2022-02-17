@@ -1,0 +1,26 @@
+.navigation {
+    margin-bottom: 20px;
+}
+
+.topic-list__item {
+    margin-bottom: 20px;
+}
+
+.test {
+    font-family: "Roboto", "Lucida Grande", Verdana, Arial, sans-serif;
+    font-style: Italic;
+    font-weight: bold;
+    font-size: 25px;
+    color: #ff0000;
+    background-color: #7CFC00;
+}
+
+.test2 {
+	height: 100px;
+	padding: 5px;
+	margin: 10px;
+	border: 5px solid #00ff00;
+
+	color: #ff0000;
+	display: inline-block;
+}

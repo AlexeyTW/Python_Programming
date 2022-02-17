@@ -1,7 +1,14 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Index{% endblock %}
+{% block title %}Index_html{% endblock %}
+
+{% block styles %}
+    <link rel="stylesheet" type="text/css" href="{% static 'core/css/index.css' %}">
+{% endblock %}
 
 {% block content %}
-    content
+    <div class="container">
+        {% include "core/topic_list.html" %}
+    </div>
 {% endblock %}
