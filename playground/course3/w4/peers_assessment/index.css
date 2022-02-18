@@ -1,0 +1,24 @@
+.container-fluid {
+	margin-top: 20px;
+}
+
+.col-3.login {
+	text-align: right;
+}
+
+.container-sm {
+	block-size: 75%;
+}
+
+.card-body {
+	text-align: center;
+}
+
+.btn-primary {
+    color: #fff;
+    background-color: #007bff;
+    border-color: #007bff;
+    height: 90px;
+    width: 90px;
+    horizontal-align: center;
+}
