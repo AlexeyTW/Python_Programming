@@ -1,24 +1,26 @@
-.container-fluid {
-	margin-top: 20px;
+.avatar {
+    width: 100px;
+    height: 100px;
+    background: lightgrey;
+    text-align: center;
+    font-family: cursive;
+    font-size: 16px;
+    color: white;
 }
 
-.col-3.login {
-	text-align: right;
+.row {
+    padding: 20px;
 }
 
-.container-sm {
-	block-size: 75%;
+.counter {
+    width: 70px;
+    height: 30px;
+    border-style: solid;
+    border-width: 1px;
+    color: grey;
+    margin-top: 10px;
 }
 
-.card-body {
-	text-align: center;
-}
-
-.btn-primary {
-    color: #fff;
-    background-color: #007bff;
-    border-color: #007bff;
-    height: 90px;
-    width: 90px;
-    horizontal-align: center;
+.like {
+    font-size: 10px;
 }

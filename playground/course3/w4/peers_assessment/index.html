@@ -9,7 +9,7 @@
 <body>
 
 
-<div class="container-fluid">
+<div class="container">
 	<div class='row'>
 		<div class='col-2'>
 			<a class="navbar-brand">Stackoverflow</a>
@@ -19,7 +19,7 @@
 			  <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
 			</form>
 		</div>
-		<div class='col-3 login'>
+		<div class='col-3 login' style="text-align:right">
 			<a href="URL">log in</a>
 		</div>
 		<div class='col-3'>
@@ -28,25 +28,63 @@
 	</div>
 </div>
 
-<div class="w-75">
-	<div class="container-fluid">
-		<div class='w-25 d-inline-block'>
-		<button class="btn btn-primary">
-		  <span class="spinner-border spinner-border-sm"></span>
-		  Loading..
-		</button>
-	</div>
+<div class="container">
+	<div class="row">
+		<div class="col-9">
+			<div class="row">
+				<div class="col-3">
+					<div class="row">
+						<div class="avatar">avatar</div>
+						<div class="counter">
+							<div class="count-value" style="width:35px;height:30px;display:inline"></div>
 
-	<div class='w-50 d-inline-block 3'>
-		<div class="card">
-		  <div class="card-body">
-			<p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-		  </div>
+						</div>
+					</div>
+
+				</div>
+				<div class="col-9">Content</div>
+			</div>
+			<div class="row">
+				<div class="col-3">Avatar</div>
+				<div class="col-9">Content</div>
+			</div>
+			<div class="row">
+				<div class="col-3">Avatar</div>
+				<div class="col-9">Content</div>
+			</div>
 		</div>
+		<div class="col-3">Block2</div>
 	</div>
-	</div>
-
 </div>
+
+
+<center>
+    <div>
+		<button class="like" onclick="onClickLike()">
+			<svg aria-hidden="true" class="svg-icon iconArrowUpLg" width="36" height="36" viewBox="0 0 36 36"><path d="M2 25h32L18 9 2 25Z"></path></svg>
+			<script>
+				var clicks = 0
+				function onClickLike() {
+  				clicks += 1;
+  				document.getElementById("clicks").innerHTML = clicks;
+				};
+			</script>
+		</button>
+		<p>Clicks: <a id="clicks">0</a></p>
+		<button class="dislike" onclick="onClickDislike()">
+			<svg aria-hidden="true" class="svg-icon iconArrowDownLg" width="36" height="36" viewBox="0 0 36 36"><path d="M2 11h32L18 27 2 11Z"></path></svg>
+			<script>
+				var clicks = 0
+				function onClickDislike() {
+  				clicks -= 1;
+  				document.getElementById("clicks").innerHTML = clicks;
+				};
+			</script>
+		</button>
+    </div>
+</center>
+
+
 
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
