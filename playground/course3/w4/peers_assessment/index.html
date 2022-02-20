@@ -36,8 +36,28 @@
 					<div class="row">
 						<div class="avatar">avatar</div>
 						<div class="counter">
-							<div class="count-value" style="width:35px;height:30px;display:inline"></div>
-
+							<p style="margin-left:0px; width:45px; display:inline"> <a id="clicks">0</a> </p></div>
+							<div class="count-likes" style="height:32px;width:15px;display:inline">
+								<button class="like" onclick="onClickLike()" style="display:block;vertical-align:top">
+									<p>^</p>
+									<script>
+										var clicks = 0
+										function onClickLike() {
+										clicks += 1;
+										document.getElementById("clicks").innerHTML = clicks;
+										};
+									</script>
+								</button>
+								<button class="dislike" onclick="onClickDislike()" style="display:block;vertical-align:top"><p>v</p>
+									<script>
+										var clicks = 0
+										function onClickDislike() {
+										clicks -= 1;
+										document.getElementById("clicks").innerHTML = clicks;
+										};
+									</script>
+								</button>
+							</div>
 						</div>
 					</div>
 
