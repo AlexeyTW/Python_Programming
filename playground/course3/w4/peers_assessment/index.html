@@ -27,82 +27,138 @@
 		</div>
 	</div>
 </div>
-
+<hr align="center" size="2" />
 <div class="container">
 	<div class="row">
 		<div class="col-9">
 			<div class="row">
-				<div class="col-3">
-					<div class="row">
-						<div class="avatar">avatar</div>
+				<div>
+					<div class="avatar">avatar</div>
+					<div>
 						<div class="counter">
-							<p style="margin-left:0px; width:45px; display:inline"> <a id="clicks">0</a> </p></div>
-							<div class="count-likes" style="height:32px;width:15px;display:inline">
-								<button class="like" onclick="onClickLike()" style="display:block;vertical-align:top">
-									<p>^</p>
-									<script>
-										var clicks = 0
-										function onClickLike() {
-										clicks += 1;
-										document.getElementById("clicks").innerHTML = clicks;
-										};
-									</script>
-								</button>
-								<button class="dislike" onclick="onClickDislike()" style="display:block;vertical-align:top"><p>v</p>
-									<script>
-										var clicks = 0
-										function onClickDislike() {
-										clicks -= 1;
-										document.getElementById("clicks").innerHTML = clicks;
-										};
-									</script>
-								</button>
-							</div>
+							<a id="clicks1">0</a>
+						</div>
+						<div class="count-likes">
+							<button class="like" onclick="onClickLike1()"><p>/\</p>
+								<script>
+									var clicks1 = 0
+									function onClickLike1() {
+									clicks1 += 1;
+									document.getElementById("clicks1").innerHTML = clicks1;
+									};
+								</script>
+							</button>
+							<button class="dislike" onclick="onClickDislike1()" style="display:block;vertical-align:top"><p>\/</p>
+								<script>
+									var clicks1 = 0
+									function onClickDislike1() {
+									if (clicks1 > 0) {
+										clicks1 -= 1; }
+									document.getElementById("clicks1").innerHTML = clicks1;
+									};
+								</script>
+							</button>
 						</div>
 					</div>
-
 				</div>
-				<div class="col-9">Content</div>
+				<div class="col-9">
+					<h4>How to build a moon park?</h4>
+					<p class="comment">Lorem ipsum - dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+						Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+					<p>Tags:
+						<a href="">black-jack</a> <a href="">bender</a> </p>
+				</div>
 			</div>
-			<div class="row">
-				<div class="col-3">Avatar</div>
-				<div class="col-9">Content</div>
+			<hr align="center" size="2"/>
+			<div style="border-style:solid; border-width:2px; border-radius:3px; color:#6c757d">
+				<div class="row">
+				<div>
+					<div class="avatar">avatar</div>
+					<div class="counter">
+						<p style="margin-left:0px; width:45px; display:inline"> <a id="clicks2">0</a> </p></div>
+					<div class="count-likes">
+						<button class="like" onclick="onClickLike2()"><p>/\</p>
+							<script>
+								var clicks2 = 0
+								function onClickLike2() {
+								clicks2 += 1;
+								document.getElementById("clicks2").innerHTML = clicks2;
+								};
+							</script>
+						</button>
+						<button class="dislike" onclick="onClickDislike2()" style="display:block;vertical-align:top"><p>\/</p>
+							<script>
+								var clicks2 = 0
+								function onClickDislike2() {
+								if (clicks2 > 0) {
+									clicks2 -= 1; }
+								document.getElementById("clicks2").innerHTML = clicks2;
+								};
+							</script>
+						</button>
+					</div>
+				</div>
+				<div class="col-9">
+					<p class="comment">First of all I would like to thank you for th invitation to participate in such a... Russia is the huge territory which in many respects needs to be render habitable</p>
+				</div>
 			</div>
-			<div class="row">
-				<div class="col-3">Avatar</div>
-				<div class="col-9">Content</div>
+			</div>
+			<p></p>
+			<div style="border-style:solid; border-width:2px; border-radius:3px; color:#6c757d">
+				<div class="row">
+				<div>
+					<div class="avatar">avatar</div>
+					<div class="counter">
+						<p style="margin-left:0px; width:45px; display:inline"> <a id="clicks3">0</a> </p></div>
+					<div class="count-likes">
+						<button class="like" onclick="onClickLike3()"><p>/\</p>
+							<script>
+								var clicks3 = 0
+								function onClickLike3() {
+								clicks3 += 1;
+								document.getElementById("clicks3").innerHTML = clicks3;
+								};
+							</script>
+						</button>
+						<button class="dislike" onclick="onClickDislike3()" style="display:block;vertical-align:top"><p>\/</p>
+							<script>
+								var clicks3 = 0
+								function onClickDislike3() {
+								if (clicks3 > 0) {
+									clicks3 -= 1; }
+								document.getElementById("clicks3").innerHTML = clicks3;
+								};
+							</script>
+						</button>
+					</div>
+				</div>
+				<div class="col-9">
+					<p class="comment">First of all I would like to thank you for th invitation to participate in such a... Russia is the huge territory which in many respects needs to be render habitable</p>
+				</div>
+			</div>
+			</div>
+			<hr align="center" size="2"/>
+			<div class="answer">
+				<textarea class="form-control" id="exampleFormControlTextarea1" rows="3" placeholder="Enter your answer here"></textarea>
+				<btn type="button" class="btn btn-primary shadow-lg" style="margin-top:10px">Answer</btn>
 			</div>
 		</div>
-		<div class="col-3">Block2</div>
+		<div class="col-3">
+			<div style="margin-top: 30px;">
+				<h4>Popular Tags</h4>
+				<p style="margin-bottom:0px; color:gray;">coursera python</p>
+				<p style="margin-bottom:15px; color:gray">mysql django</p>
+			</div>
+			<div style="margin-top: 30px;">
+				<h4>Best Members</h4>
+				<div><a href="">Mr. Freeman</a></div>
+				<div><a href="">Dr. House</a></div>
+				<div><a href="">Bender</a></div>
+				<div><a href="">Queen Victoria</a></div>
+			</div>
+		</div>
 	</div>
 </div>
-
-
-<center>
-    <div>
-		<button class="like" onclick="onClickLike()">
-			<svg aria-hidden="true" class="svg-icon iconArrowUpLg" width="36" height="36" viewBox="0 0 36 36"><path d="M2 25h32L18 9 2 25Z"></path></svg>
-			<script>
-				var clicks = 0
-				function onClickLike() {
-  				clicks += 1;
-  				document.getElementById("clicks").innerHTML = clicks;
-				};
-			</script>
-		</button>
-		<p>Clicks: <a id="clicks">0</a></p>
-		<button class="dislike" onclick="onClickDislike()">
-			<svg aria-hidden="true" class="svg-icon iconArrowDownLg" width="36" height="36" viewBox="0 0 36 36"><path d="M2 11h32L18 27 2 11Z"></path></svg>
-			<script>
-				var clicks = 0
-				function onClickDislike() {
-  				clicks -= 1;
-  				document.getElementById("clicks").innerHTML = clicks;
-				};
-			</script>
-		</button>
-    </div>
-</center>
 
 
 
