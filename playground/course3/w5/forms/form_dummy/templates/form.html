@@ -1,1 +1,23 @@
-Hello, world
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf8">
+        <title>Tag FORM</title>
+    </head>
+    <body>
+        <h1>Tag form</h1>
+        <form method="post" action="/form/" enctype="multipart/form-data">
+            {% csrf_token %}
+            <label for="feedback-text"> Feedback: </label>
+            <input id="feedback-text" type="text" name="text" minlength="3" maxlength="10" required>
+
+            <label for="feedback-rate"> Rate: </label>
+            <input id="feedback-rate" type="number" name="rating" min="1" max="100" required>
+
+            <label for="feedback-photo"> Photo: </label>
+            <input id="feedback-photo" type="file" name="photo">
+
+            <input id="feedback-submit" type="submit" name="submit">
+        </form>
+    </body>
+</html>
