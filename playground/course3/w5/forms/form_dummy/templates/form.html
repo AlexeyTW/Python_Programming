@@ -14,10 +14,13 @@
             <label for="feedback-rate"> Rate: </label>
             <input id="feedback-rate" type="number" name="rating" min="1" max="100" required>
 
-            <label for="feedback-photo"> Photo: </label>
-            <input id="feedback-photo" type="file" name="photo">
-
             <input id="feedback-submit" type="submit" name="submit">
+
+
         </form>
+                <div>
+                {{ feedback }}
+                {{ rate }}
+            </div>
     </body>
 </html>
