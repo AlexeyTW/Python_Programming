@@ -15,5 +15,4 @@ class FormDummyView(View):
 			'feedback': feedback,
 			'rate': rate
 		}
-		print(feedback, rate)
 		return render(request, 'form.html', context)
