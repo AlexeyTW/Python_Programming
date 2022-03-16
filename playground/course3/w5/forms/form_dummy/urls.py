@@ -1,7 +1,7 @@
 
 from django.conf.urls import url
-from .views import FormDummyView
+from .views import FormDummyView, SchemaView
 
 urlpatterns = [
-    url('', FormDummyView.as_view())
+    url('', SchemaView.as_view())
 ]
