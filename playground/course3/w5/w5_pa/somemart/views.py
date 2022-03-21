@@ -8,7 +8,9 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.forms import Form
 
+
 from .models import Item, Review
+
 
 class AddItemForm(Form):
     title = django.forms.CharField(label='title', max_length=64, required=True)
@@ -26,12 +28,9 @@ class AddItemView(View):
         if form.is_valid():
             context = form.cleaned_data
             print(context)
-            return HttpResponse('12345', status=201)
-
+            return JsonResponse(context, status=201)
         else:
-            print('!!!')
-            return HttpResponse(request)
-        #return JsonResponse('data', status=201)
+            return JsonResponse({}, status=400)
 
 
 class PostReviewView(View):
