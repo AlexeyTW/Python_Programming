@@ -18,6 +18,11 @@ class AddItemForm(Form):
     price = django.forms.IntegerField(label='price', min_value=1, max_value=100000, required=True)
 
 
+class PostReviewForm(Form):
+    text = django.forms.CharField(max_length=1024, required=True)
+    grade = django.forms.IntegerField(min_value=1, max_value=10, required=True)
+
+
 @method_decorator(csrf_exempt, name='dispatch')
 class AddItemView(View):
     """View для создания товара."""
@@ -30,15 +35,26 @@ class AddItemView(View):
             print(context)
             return JsonResponse(context, status=201)
         else:
+            print('AddItemView')
             return JsonResponse({}, status=400)
 
 
+@method_decorator(csrf_exempt, name='dispatch')
 class PostReviewView(View):
     """View для создания отзыва о товаре."""
 
     def post(self, request, item_id):
-        # Здесь должен быть ваш код
-        return JsonResponse(data, status=201)
+        form = PostReviewForm(request.POST)
+        if form.is_valid():
+            review = Review()
+            review.item = item_id
+            review.text = request.POST.get('text')
+            review.grade = request.POST.get('grade')
+            review.save()
+        else:
+            print('NOT OK')
+        return JsonResponse({}, status=201)
+        #return JsonResponse(data, status=201)
 
 
 class GetItemView(View):
@@ -50,4 +66,5 @@ class GetItemView(View):
 
     def get(self, request, item_id):
         # Здесь должен быть ваш код
+        print('GETGET')
         return JsonResponse(data, status=200)
