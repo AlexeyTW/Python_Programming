@@ -32,10 +32,11 @@ class AddItemView(View):
         form = AddItemForm(request.POST)
         if form.is_valid():
             context = form.cleaned_data
-            print(context)
-            return JsonResponse(context, status=201)
+            item = Item(title=context['title'], description=context['description'], price=context['price'])
+            item.save()
+            return JsonResponse({'id': item.id}, status=201)
         else:
-            print('AddItemView')
+            print('Incorrect form')
             return JsonResponse({}, status=400)
 
 
@@ -46,17 +47,19 @@ class PostReviewView(View):
     def post(self, request, item_id):
         form = PostReviewForm(request.POST)
         if form.is_valid():
-            review = Review()
-            review.item = item_id
-            review.text = request.POST.get('text')
-            review.grade = request.POST.get('grade')
-            review.save()
+            if len(Item.objects.filter(id=item_id)) == 1:
+                context = form.cleaned_data
+                added_item = Item.objects.filter(id=item_id)[0]
+                review = Review(text=context['text'], grade=context['grade'], item=added_item)
+                review.save()
+                return JsonResponse({'id': review.id}, status=201)
+            else:
+                return HttpResponse('No item with such ID', status=404)
         else:
-            print('NOT OK')
-        return JsonResponse({}, status=201)
-        #return JsonResponse(data, status=201)
+            return HttpResponse('Validation error', status=400)
 
 
+@method_decorator(csrf_exempt, name='dispatch')
 class GetItemView(View):
     """View для получения информации о товаре.
 
@@ -66,5 +69,13 @@ class GetItemView(View):
 
     def get(self, request, item_id):
         # Здесь должен быть ваш код
-        print('GETGET')
-        return JsonResponse(data, status=200)
+        item = Item.objects.filter(id=item_id)[0]
+        data = {
+            'id': item_id,
+            'title': item.title,
+            'description': item.description,
+            'price': item.price
+        }
+        reviews = Review.objects.filter(item_id=item_id).order_by('id')[:5]
+        print(reviews)
+        return JsonResponse({}, status=200)
