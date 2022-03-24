@@ -1,7 +1,6 @@
 import json
 
 import django.forms
-from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse, HttpRequest
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
@@ -30,13 +29,13 @@ class AddItemView(View):
     def post(self, request: HttpRequest):
         # Здесь должен быть ваш код
         form = AddItemForm(request.POST)
+        print(request.body)
         if form.is_valid():
             context = form.cleaned_data
             item = Item(title=context['title'], description=context['description'], price=context['price'])
             item.save()
             return JsonResponse({'id': item.id}, status=201)
         else:
-            print('Incorrect form')
             return JsonResponse({}, status=400)
 
 
@@ -47,7 +46,7 @@ class PostReviewView(View):
     def post(self, request, item_id):
         form = PostReviewForm(request.POST)
         if form.is_valid():
-            if len(Item.objects.filter(id=item_id)) == 1:
+            if len(Item.objects.filter(id=item_id)):
                 context = form.cleaned_data
                 added_item = Item.objects.filter(id=item_id)[0]
                 review = Review(text=context['text'], grade=context['grade'], item=added_item)
@@ -69,13 +68,25 @@ class GetItemView(View):
 
     def get(self, request, item_id):
         # Здесь должен быть ваш код
-        item = Item.objects.filter(id=item_id)[0]
-        data = {
-            'id': item_id,
-            'title': item.title,
-            'description': item.description,
-            'price': item.price
-        }
-        reviews = Review.objects.filter(item_id=item_id).order_by('id')[:5]
-        print(reviews)
-        return JsonResponse({}, status=200)
+        if len(Item.objects.filter(id=item_id)):
+            item = Item.objects.filter(id=item_id)[0]
+            reviews_obj = Review.objects.filter(item_id=item_id).order_by('-id')[:5]
+            reviews = []
+            for review in reviews_obj:
+                r = {}
+                r['id'] = review.__dict__['id']
+                r['text'] = review.__dict__['text']
+                r['grade'] = int(review.__dict__['grade'])
+                reviews.append(r)
+
+            data = {
+                'id': int(item_id),
+                'title': item.title,
+                'description': item.description,
+                'price': int(item.price),
+                'reviews': reviews
+            }
+            print(data)
+            return JsonResponse(data, status=200)
+        else:
+            return HttpResponse('Item with id {} does not exist'.format(item_id), status=404)
