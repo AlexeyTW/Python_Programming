@@ -1,4 +1,6 @@
 import json
+from jsonschema import validate
+from jsonschema.exceptions import ValidationError
 
 import django.forms
 from django.http import HttpResponse, JsonResponse, HttpRequest
@@ -6,20 +8,48 @@ from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.forms import Form
-
-
 from .models import Item, Review
 
+ITEM_SCHEMA = {
+    '#schema': 'https://json-schema.org/schema#',
+    'type': 'object',
+    'properties': {
+        'title': {
+            'type': 'string',
+            'minLength': 1,
+            'maxLength': 64,
+        },
+        'description': {
+            'type': 'string',
+            'minLength': 1,
+            'maxLength': 1024
+        },
+        'price': {
+            'type': 'integer',
+            'minimum': 1,
+            'maximum': 100000
+        }
+    },
+    'required': ['title', 'description', 'price']
+}
 
-class AddItemForm(Form):
-    title = django.forms.CharField(label='title', max_length=64, required=True)
-    description = django.forms.CharField(label='description', max_length=1024, required=True)
-    price = django.forms.IntegerField(label='price', min_value=1, max_value=100000, required=True)
-
-
-class PostReviewForm(Form):
-    text = django.forms.CharField(max_length=1024, required=True)
-    grade = django.forms.IntegerField(min_value=1, max_value=10, required=True)
+REVIEW_SCHEMA = {
+    '#schema': 'https://json-schema.org/schema#',
+    'type': 'object',
+    'properties': {
+        'text': {
+            'type': 'string',
+            'minLength': 1,
+            'maxLength': 1024,
+        },
+        'grade': {
+            'type': 'integer',
+            'minimum': 1,
+            'maximum': 10,
+        },
+    },
+    'required': ['text', 'grade']
+}
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -28,14 +58,15 @@ class AddItemView(View):
 
     def post(self, request: HttpRequest):
         # Здесь должен быть ваш код
-        form = AddItemForm(request.POST)
-        print(request.body)
-        if form.is_valid():
-            context = form.cleaned_data
-            item = Item(title=context['title'], description=context['description'], price=context['price'])
+        try:
+            data = json.loads(request.body)
+            if 'price' in data.keys():
+                data['price'] = int(data['price'])
+            validate(data, ITEM_SCHEMA)
+            item = Item(title=data['title'], description=data['description'], price=data['price'])
             item.save()
             return JsonResponse({'id': item.id}, status=201)
-        else:
+        except (ValidationError, json.JSONDecodeError, TypeError, ValueError):
             return JsonResponse({}, status=400)
 
 
@@ -44,17 +75,19 @@ class PostReviewView(View):
     """View для создания отзыва о товаре."""
 
     def post(self, request, item_id):
-        form = PostReviewForm(request.POST)
-        if form.is_valid():
+        try:
+            data = json.loads(request.body)
+            if 'grade' in data.keys():
+                data['grade'] = int(data['grade'])
+            validate(data, REVIEW_SCHEMA)
             if len(Item.objects.filter(id=item_id)):
-                context = form.cleaned_data
                 added_item = Item.objects.filter(id=item_id)[0]
-                review = Review(text=context['text'], grade=context['grade'], item=added_item)
+                review = Review(text=data['text'], grade=data['grade'], item=added_item)
                 review.save()
                 return JsonResponse({'id': review.id}, status=201)
             else:
                 return HttpResponse('No item with such ID', status=404)
-        else:
+        except (ValidationError, json.JSONDecodeError, TypeError, ValueError):
             return HttpResponse('Validation error', status=400)
 
 
@@ -86,7 +119,6 @@ class GetItemView(View):
                 'price': int(item.price),
                 'reviews': reviews
             }
-            print(data)
             return JsonResponse(data, status=200)
         else:
             return HttpResponse('Item with id {} does not exist'.format(item_id), status=404)
