@@ -6,13 +6,14 @@ from .schemas import REVIEW_SCHEMA, ReviewSchema
 from jsonschema.validators import validate
 from jsonschema.exceptions import ValidationError
 import json
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from marshmallow.exceptions import ValidationError as MarshError
 
 
 @method_decorator(csrf_exempt, name='dispatch')
-class FormDummyView(View):
+class FormDummyView(LoginRequiredMixin, View):
 	def get(self, request: HttpRequest):
 		form = DummyForm()
 		return render(request, 'form.html', {'form': form})
