@@ -7,7 +7,7 @@
     <body>
         <h1>LOGIN</h1>
         {% if next %}
-        <form action="/login/?next={{next}}" method="get"></form>
+        <form action="/login/?next={{next}}" method="post"></form>
         {% else %}
             <form action="/login/" method="post">
         {% endif %}

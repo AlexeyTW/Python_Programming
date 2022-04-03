@@ -10,21 +10,20 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from marshmallow.exceptions import ValidationError as MarshError
+from django.views.generic.edit import CreateView
+from .models import Feedback
 
 
-@method_decorator(csrf_exempt, name='dispatch')
-class FormDummyView(LoginRequiredMixin, View):
-	def get(self, request: HttpRequest):
-		form = DummyForm()
-		return render(request, 'form.html', {'form': form})
+#@method_decorator(csrf_exempt, name='dispatch')
+class FeedbackCreateView(LoginRequiredMixin, CreateView):
+	model = Feedback
+	fields = ['text', 'grade', 'subject']
+	success_url = '/feedback/add'
 
-	def post(self, request: HttpRequest):
-		form = DummyForm(request.POST)
-		if form.is_valid():
-			context = form.cleaned_data
-			return render(request, 'form.html', context)
-		else:
-			return render(request, 'error.html', {'error': form.errors})
+	def form_valid(self, form):
+		form.instance.author = self.request.user
+		return super().form_valid(form)
+
 
 @method_decorator(csrf_exempt, name='dispatch')
 class SchemaView(View):

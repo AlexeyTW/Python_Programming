@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'form_dummy.apps.FormDummyConfig',
+    'feedback.apps.FeedbackConfig',
 ]
 
 MIDDLEWARE = [

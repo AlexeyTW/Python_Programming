@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf8">
+        <title>Add feedback</title>
+    </head>
+    <body>
+        <h1>Add feedback</h1>
+        <form method="post" action="/feedback/add/" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form }}
+            <input id="feedback-submit" type="submit" name="submit">
+        </form>
+    </body>
+</html>
