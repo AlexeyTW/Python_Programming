@@ -4,5 +4,5 @@ from .views import FeedbackCreateView, SchemaView, MarshView
 from . import views
 
 urlpatterns = [
-    url('add/', views.FeedbackCreateView.as_view(), name='feedback-create')
+    url('add', FeedbackCreateView.as_view(), name='feedback-create')
 ]

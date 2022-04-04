@@ -7,13 +7,14 @@
     <body>
         <h1>LOGIN</h1>
         {% if next %}
-        <form action="/login/?next={{next}}" method="post"></form>
+        <form action="/login/?next=/feedback/add/" method="post">
         {% else %}
-            <form action="/login/" method="post">
+        <form action="/login/" method="post">
         {% endif %}
             {% csrf_token %}
             {{ form }}
-            <input id="submit-btn" type="submit" value="Send">
-            </form>
+            <input id="submit-btn" type="submit" value="submit">
+        </form>
+
     </body>
 </html>
