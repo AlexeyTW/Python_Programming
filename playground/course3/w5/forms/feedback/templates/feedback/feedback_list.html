@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf8">
+        <title>List of feedbacks</title>
+    </head>
+    <body>
+        <h1>List of feedbacks</h1>
+            {% for feedback in object_list %}
+                <li>{{ feedback.subject}} - {{ feedback.text }}</li>
+            {% empty %}
+                <li>No feedbacks</li>
+            {% endfor %}
+    </body>
+</html>

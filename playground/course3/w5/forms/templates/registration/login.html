@@ -6,8 +6,9 @@
     </head>
     <body>
         <h1>LOGIN</h1>
+        {{next}}
         {% if next %}
-        <form action="/login/?next=/feedback/add/" method="post">
+        <form action="/login/?next={{ next }}" method="post">
         {% else %}
         <form action="/login/" method="post">
         {% endif %}

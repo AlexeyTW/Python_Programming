@@ -11,10 +11,10 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from marshmallow.exceptions import ValidationError as MarshError
 from django.views.generic.edit import CreateView
+from django.views.generic.list import ListView
 from .models import Feedback
 
 
-#@method_decorator(csrf_exempt, name='dispatch')
 class FeedbackCreateView(LoginRequiredMixin, CreateView):
 	model = Feedback
 	fields = ['text', 'grade', 'subject']
@@ -24,6 +24,14 @@ class FeedbackCreateView(LoginRequiredMixin, CreateView):
 		form.instance.author = self.request.user
 		return super().form_valid(form)
 
+
+class FeedbackListView(LoginRequiredMixin, ListView):
+	model = Feedback
+
+	def get_queryset(self):
+		if self.request.user.is_staff:
+			return Feedback.objects.all()
+		return Feedback.objects.filter(author=self.request.user)
 
 @method_decorator(csrf_exempt, name='dispatch')
 class SchemaView(View):
