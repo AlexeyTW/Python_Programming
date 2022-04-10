@@ -35,6 +35,25 @@ ITEM_SCHEMA = {
     'required': ['title', 'description', 'price']
 }
 
+REVIEW_SCHEMA = {
+    '#schema': 'https://json-schema.org/schema#',
+    'type': 'object',
+    'properties': {
+        'text': {
+            'type': 'string',
+            'minLength': 1,
+            'maxLength': 1024,
+        },
+        'grade': {
+            'type': 'integer',
+            'minimum': 1,
+            'maximum': 10,
+        },
+    },
+    'required': ['text', 'grade']
+}
+
+
 
 @method_decorator(csrf_exempt, name='dispatch')
 class AddItemView(View):
@@ -42,9 +61,10 @@ class AddItemView(View):
 
     def post(self, request: HttpRequest):
 
-        auth64 = request.META.get('HTTP_AUTHORIZATION')
+        auth64 = request.META.get('HTTP_AUTHORIZATION').split()[1]
+        #print(auth64)
         auth = base64.b64decode(auth64).decode('ascii')
-        print(auth)
+        #print(auth)
         username, password = auth.split(':')
         user = authenticate(username=username, password=password)
         if user is None:
