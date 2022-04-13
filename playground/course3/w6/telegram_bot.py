@@ -15,13 +15,12 @@ def create_keyboard():
 
 @bot.callback_query_handler(func=lambda x: True)
 def callback_handler(callback_query):
-    print(callback_query.data)
+    print(callback_query)
     message = callback_query.message
     text = callback_query.data
     cur, val = check_rates_callback(text)
     if cur:
         bot.answer_callback_query(callback_query.id, text=f'{cur} rate is {val}')
-        #bot.send_message(chat_id=message.chat.id, text=f'{cur} rate is {val}')
     else:
         print('CUR')
         bot.send_message(chat_id=message.chat.id, text="Check currency rates")
@@ -62,13 +61,6 @@ def handle_currency(message):
         print('CUR')
         bot.send_message(chat_id=message.chat.id, text="Check currency rates", reply_markup=keyboard)
 
-
-'''#@bot.message_handler()
-def handle_message(message):
-    print('SIMPLE TEXT')
-    bot.send_message(chat_id=message.chat.id, text="Check currency rates")
-    with open('D:\\Temp\\Untitled.png', 'rb') as image:
-        bot.send_photo(message.chat.id, image, 'Caption')'''
 
 bot.polling()
 
