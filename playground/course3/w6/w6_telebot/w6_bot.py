@@ -1,5 +1,6 @@
 from telebot import TeleBot
 from collections import defaultdict
+from telebot import types
 import re
 
 token = '5284544538:AAHYMdJ0uhmNkGDWD-2byon6XFgSAqovPaw'
@@ -7,16 +8,21 @@ token = '5284544538:AAHYMdJ0uhmNkGDWD-2byon6XFgSAqovPaw'
 bot = TeleBot(token)
 
 commands = ['/add', '/list', '/reset']
-START, SET_NAME, SET_COORDS, SET_PHOTO = range(4)
+buttons = ['Yes', 'No']
+START, SET_NAME, SET_COORDS, SET_PHOTO, ADD_PLACE = range(5)
 
-places = defaultdict(lambda: {})
+places = []
+place = defaultdict(lambda: {})
 user_state = defaultdict(lambda: START)
+
 
 def get_user_state(message):
     return user_state[message.chat.id]
 
-def update_user_state(message):
-    user_state[message.chat.id] += 1
+
+def update_user_state(message, state):
+    user_state[message.chat.id] = state
+
 
 def check_coordinates(message):
     text = message.text
@@ -27,28 +33,58 @@ def check_coordinates(message):
     except ValueError:
         return False
 
+
+def draw_buttons():
+    keyboard = types.InlineKeyboardMarkup()
+    btns = [types.InlineKeyboardButton(text=button, callback_data=button) for button in buttons]
+    keyboard.add(*btns)
+    return keyboard
+
+
 def add(user_id, param, value):
-    places[user_id][param] = value
+    place[user_id][param] = value
+
+
+def store_place(message):
+    print('start store')
+    if get_user_state(message) == ADD_PLACE:
+        keyboard = draw_buttons()
+        bot.send_message(message.chat.id, f'Do you want to add this place: \n{dict(place)}',
+                         reply_markup=keyboard)
+
+    @bot.callback_query_handler(lambda x: True)
+    def callback_handler(callback):
+        print(callback.data)
+        if callback.data == 'Yes':
+            places.append(place)
+            update_user_state(message, START)
+        print('end store')
+    return
+
 
 def list():
     pass
+
 
 def reset():
     pass
 
 
+@bot.message_handler(func=lambda message: get_user_state(message) == START)
 @bot.message_handler(commands=['add'])
 def command_add(message):
-    print(places, user_state)
     bot.send_message(message.chat.id, "Set cafe name")
-    update_user_state(message)
+    update_user_state(message, SET_NAME)
+    print(dict(place), dict(places), dict(user_state))
+
 
 @bot.message_handler(func=lambda message: get_user_state(message) == SET_NAME)
 def set_name(message):
     add(message.chat.id, 'name', message.text)
     bot.send_message(message.chat.id, "Set coordinates")
-    update_user_state(message)
-    print(places, user_state)
+    update_user_state(message, SET_COORDS)
+    print(dict(place), dict(places), dict(user_state))
+
 
 @bot.message_handler(func=lambda message: get_user_state(message) == SET_COORDS)
 def set_coordinates(message):
@@ -58,19 +94,24 @@ def set_coordinates(message):
     else:
         add(message.chat.id, 'coordinates', coords)
         bot.send_message(message.chat.id, "Set photo or type 'skip' to skip adding the photo")
-        update_user_state(message)
+        update_user_state(message, SET_PHOTO)
+    print(dict(place), dict(places), dict(user_state))
 
+
+@bot.message_handler(content_types=['photo'])
 @bot.message_handler(func=lambda message: get_user_state(message) == SET_PHOTO)
 def set_photo(message):
-    if message.text != 'skip':
-        add(message.chat.id, 'photo', message.text)
-        bot.send_message(message.chat.id, f'Item: \n{dict(places)}')
-        user_state[message.chat.id] = 0
-        print(places, user_state)
+    if message.photo is not None:
+        add(message.chat.id, 'photo', message.photo)
+        update_user_state(message, ADD_PLACE)
+        store_place(message)
+        print(dict(place), dict(places), dict(user_state))
         return
-    bot.send_message(message.chat.id, f'Item: \n{dict(places)}')
-    user_state[message.chat.id] = 0
-    print(places, user_state)
+    bot.send_message(message.chat.id, f"Photo is not set for the place {place[message.chat.id]['name']}")
+    update_user_state(message, ADD_PLACE)
+    store_place(message)
+    print(dict(place), dict(places), dict(user_state))
+
 
 @bot.message_handler(func=lambda message: message.text not in commands)
 def simple_message(message):
