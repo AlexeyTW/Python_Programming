@@ -11,7 +11,7 @@ commands = ['/add', '/list', '/reset']
 buttons = ['Yes', 'No']
 START, SET_NAME, SET_COORDS, SET_PHOTO, ADD_PLACE = range(5)
 
-places = []
+places = defaultdict(lambda: [])
 place = defaultdict(lambda: {})
 user_state = defaultdict(lambda: START)
 
@@ -41,25 +41,26 @@ def draw_buttons():
     return keyboard
 
 
-def add(user_id, param, value):
-    place[user_id][param] = value
+def add(param, value):
+    place[param] = value
+
+
+@bot.callback_query_handler(lambda x: True)
+def callback_handler(callback):
+    if callback.data == 'Yes':
+        places[callback.from_user.id].append(dict(place))
+        bot.send_message(chat_id=callback.from_user.id,
+                         text=f'Place {place["name"]} has been added')
+    update_user_state(callback.message, START)
+    bot.send_message(chat_id=callback.from_user.id,
+                     text='Waiting for the next command')
+    print(dict(places), get_user_state(callback.message))
 
 
 def store_place(message):
-    print('start store')
-    if get_user_state(message) == ADD_PLACE:
-        keyboard = draw_buttons()
-        bot.send_message(message.chat.id, f'Do you want to add this place: \n{dict(place)}',
-                         reply_markup=keyboard)
-
-    @bot.callback_query_handler(lambda x: True)
-    def callback_handler(callback):
-        print(callback.data)
-        if callback.data == 'Yes':
-            places.append(place)
-            update_user_state(message, START)
-        print('end store')
-    return
+    keyboard = draw_buttons()
+    bot.send_message(message.chat.id, f'Do you want to add this place: \n{dict(place)}',
+                     reply_markup=keyboard)
 
 
 def list():
@@ -70,20 +71,18 @@ def reset():
     pass
 
 
-@bot.message_handler(func=lambda message: get_user_state(message) == START)
-@bot.message_handler(commands=['add'])
+@bot.message_handler(func=lambda message: get_user_state(message) == START,
+                     commands=['add'])
 def command_add(message):
     bot.send_message(message.chat.id, "Set cafe name")
     update_user_state(message, SET_NAME)
-    print(dict(place), dict(places), dict(user_state))
 
 
 @bot.message_handler(func=lambda message: get_user_state(message) == SET_NAME)
 def set_name(message):
-    add(message.chat.id, 'name', message.text)
+    add('name', message.text)
     bot.send_message(message.chat.id, "Set coordinates")
     update_user_state(message, SET_COORDS)
-    print(dict(place), dict(places), dict(user_state))
 
 
 @bot.message_handler(func=lambda message: get_user_state(message) == SET_COORDS)
@@ -92,25 +91,21 @@ def set_coordinates(message):
     if not coords:
         bot.send_message(message.chat.id, 'Incorrect coordinates. Please use format "lat, long"')
     else:
-        add(message.chat.id, 'coordinates', coords)
+        add('coordinates', str(coords))
         bot.send_message(message.chat.id, "Set photo or type 'skip' to skip adding the photo")
         update_user_state(message, SET_PHOTO)
-    print(dict(place), dict(places), dict(user_state))
 
 
 @bot.message_handler(content_types=['photo'])
 @bot.message_handler(func=lambda message: get_user_state(message) == SET_PHOTO)
 def set_photo(message):
     if message.photo is not None:
-        add(message.chat.id, 'photo', message.photo)
+        add('photo', message.photo)
         update_user_state(message, ADD_PLACE)
         store_place(message)
-        print(dict(place), dict(places), dict(user_state))
-        return
-    bot.send_message(message.chat.id, f"Photo is not set for the place {place[message.chat.id]['name']}")
+    bot.send_message(message.chat.id, f"Photo is not set for the place {place['name']}")
     update_user_state(message, ADD_PLACE)
     store_place(message)
-    print(dict(place), dict(places), dict(user_state))
 
 
 @bot.message_handler(func=lambda message: message.text not in commands)
