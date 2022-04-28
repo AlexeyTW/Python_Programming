@@ -1,4 +1,5 @@
 from telebot import TeleBot
+from telebot.types import File
 from collections import defaultdict
 from telebot import types
 import sqlite3
@@ -83,8 +84,12 @@ def callback_handler(callback):
     if callback.data in names:
         plc = get_place_by_name(callback.message, callback.data)
         bot.send_message(callback.from_user.id, f'Place name: {plc["name"]},\n'
-                                                f'Coordiinates: {plc["coordinates"]}')
-        bot.send_photo(callback.from_user.id, plc['photo'])
+                                                f'Coordinates: {plc["coordinates"]}')
+        if plc['photo'] is not None:
+            file = bot.get_file(plc['photo'][0].file_id)
+            img = bot.download_file(file.file_path)
+            bot.send_photo(chat_id=callback.from_user.id,
+                           photo=img)
     update_user_state(callback.message, START)
     bot.send_message(chat_id=callback.from_user.id,
                      text='Waiting for the next command')
