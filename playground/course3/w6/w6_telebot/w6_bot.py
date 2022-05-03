@@ -9,6 +9,9 @@ token = '5284544538:AAHYMdJ0uhmNkGDWD-2byon6XFgSAqovPaw'
 
 bot = TeleBot(token)
 
+conn = sqlite3.connect('db/places.db', check_same_thread=False)
+cursor = conn.cursor()
+
 commands = ['/add', '/list', '/reset']
 buttons = ['Yes', 'No']
 START, SET_NAME, SET_COORDS, SET_PHOTO, ADD_PLACE = range(5)
@@ -17,6 +20,14 @@ places = defaultdict(lambda: [])
 place = defaultdict(lambda: {})
 user_state = defaultdict(lambda: START)
 
+def place_to_db(user_id: int, name: str, coordinates: str, photo: str):
+    cursor.execute('insert into places (user_id, name, coords, photo) values (?, ?, ?, ?)',
+                   (user_id, name, coordinates, photo))
+    conn.commit()
+
+
+def place_from_db(name: str):
+    cursor.execute('select * from places where name = "name"', name)
 
 def get_user_state(message):
     return user_state[message.chat.id]
@@ -30,7 +41,7 @@ def check_coordinates(message):
     text = message.text
     c = text.split(', ')[:2]
     try:
-        coords = set(map(float, c))
+        coords = str(set(map(float, c)))[1:-1]
         return coords
     except ValueError:
         return False
@@ -49,14 +60,17 @@ def add(param, value):
 
 def store_place(message):
     keyboard = draw_buttons()
-    bot.send_message(message.chat.id, f'Do you want to add this place: \n{dict(place)}',
+    bot.send_message(message.chat.id, f'Do you want to store this place: \n{dict(place)}',
                      reply_markup=keyboard)
 
 
 def get_places_names(message):
-    user_places = places[message.chat.id][-10:]
-    places_names = [item['name'] for item in user_places]
-    return places_names
+    #user_places = places[message.chat.id][-10:]
+    user_places = cursor.execute('select * from places where name = ?')
+    #places_names = [item['name'] for item in user_places]
+    #return places_names
+    print(user_places.fetchall())
+    #return user_places
 
 
 def get_place_by_name(message, name):
@@ -74,14 +88,26 @@ def reset():
     pass
 
 
+def img_to_blob(photo: types.PhotoSize):
+    if photo is not None:
+        img = bot.get_file(photo.file_id)
+        file = bot.download_file(img.file_path)
+        return file
+
+
 @bot.callback_query_handler(lambda x: True)
 def callback_handler(callback):
     names = get_places_names(callback.message)
     if callback.data == 'Yes':
         places[callback.from_user.id].append(dict(place))
+        place_to_db(callback.from_user.id,
+                    place['name'],
+                    place['coordinates'],
+                    img_to_blob(place['photo'][0]))
         bot.send_message(chat_id=callback.from_user.id,
                          text=f'Place {place["name"]} has been added')
     if callback.data in names:
+        print(place_from_db('c1'))
         plc = get_place_by_name(callback.message, callback.data)
         bot.send_message(callback.from_user.id, f'Place name: {plc["name"]},\n'
                                                 f'Coordinates: {plc["coordinates"]}')
@@ -106,11 +132,12 @@ def command_add(message):
 @bot.message_handler(commands=['list'])
 def list_places(message):
     places_names = get_places_names(message)
+    print(places_names)
     keyboard = types.InlineKeyboardMarkup()
-    btns = [types.InlineKeyboardButton(text=button, callback_data=button) for button in places_names]
-    keyboard.add(*btns)
-    bot.send_message(message.chat.id, f'Recent 10 stored places. Select one to get more details',
-                     reply_markup=keyboard)
+    #btns = [types.InlineKeyboardButton(text=button, callback_data=button) for button in places_names]
+    #keyboard.add(*btns)
+    #bot.send_message(message.chat.id, f'Recent 10 stored places. Select one to get more details',
+     #                reply_markup=keyboard)
 
 
 @bot.message_handler(func=lambda message: get_user_state(message) == SET_NAME)
