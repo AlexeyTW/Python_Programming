@@ -20,14 +20,11 @@ places = defaultdict(lambda: [])
 place = defaultdict(lambda: {})
 user_state = defaultdict(lambda: START)
 
-def place_to_db(user_id: int, name: str, coordinates: str, photo: str):
+def place_to_db(user_id, name, coordinates, photo):
     cursor.execute('insert into places (user_id, name, coords, photo) values (?, ?, ?, ?)',
                    (user_id, name, coordinates, photo))
     conn.commit()
 
-
-def place_from_db(name: str):
-    cursor.execute('select * from places where name = "name"', name)
 
 def get_user_state(message):
     return user_state[message.chat.id]
@@ -47,10 +44,10 @@ def check_coordinates(message):
         return False
 
 
-def draw_buttons():
+def draw_buttons(btns_list):
     keyboard = types.InlineKeyboardMarkup()
-    btns = [types.InlineKeyboardButton(text=button, callback_data=button) for button in buttons]
-    keyboard.add(*btns)
+    _btns = [types.InlineKeyboardButton(text=button, callback_data=button) for button in btns_list]
+    keyboard.add(*_btns)
     return keyboard
 
 
@@ -59,67 +56,52 @@ def add(param, value):
 
 
 def store_place(message):
-    keyboard = draw_buttons()
+    keyboard = draw_buttons(buttons)
     bot.send_message(message.chat.id, f'Do you want to store this place: \n{dict(place)}',
                      reply_markup=keyboard)
 
 
 def get_places_names(message):
-    #user_places = places[message.chat.id][-10:]
-    user_places = cursor.execute('select * from places where name = ?')
-    #places_names = [item['name'] for item in user_places]
-    #return places_names
-    print(user_places.fetchall())
-    #return user_places
+    user_places = cursor.execute(f'select * from places where user_id = {message.chat.id}').fetchall()
+    places_names = [item[1] for item in user_places[1:]]
+    return places_names
 
 
 def get_place_by_name(message, name):
     user = message.chat.id
-    user_data = places[user]
-    p = [item for item in user_data if item['name'] == name][0]
-    return p
+    _places = cursor.execute(f'SELECT * FROM places WHERE user_id = {user}').fetchall()
+    place = [i for i in _places if i[1] == name]
+    return place[-1]
 
 
-def list():
-    pass
-
-
-def reset():
-    pass
-
-
-def img_to_blob(photo: types.PhotoSize):
+def img_to_db(photo):
     if photo is not None:
-        img = bot.get_file(photo.file_id)
-        file = bot.download_file(img.file_path)
-        return file
+        file_id = bot.get_file(photo.file_id)
+        return file_id
 
 
 @bot.callback_query_handler(lambda x: True)
 def callback_handler(callback):
     names = get_places_names(callback.message)
     if callback.data == 'Yes':
-        places[callback.from_user.id].append(dict(place))
         place_to_db(callback.from_user.id,
                     place['name'],
                     place['coordinates'],
-                    img_to_blob(place['photo'][0]))
+                    place['photo'][0].file_id)
         bot.send_message(chat_id=callback.from_user.id,
                          text=f'Place {place["name"]} has been added')
     if callback.data in names:
-        print(place_from_db('c1'))
         plc = get_place_by_name(callback.message, callback.data)
-        bot.send_message(callback.from_user.id, f'Place name: {plc["name"]},\n'
-                                                f'Coordinates: {plc["coordinates"]}')
-        if plc['photo'] is not None:
-            file = bot.get_file(plc['photo'][0].file_id)
+        bot.send_message(callback.from_user.id, f'Place name: {plc[1]},\n'
+                                                f'Coordinates: {plc[2]}')
+        if plc[3] is not None:
+            file = bot.get_file(plc[3])
             img = bot.download_file(file.file_path)
             bot.send_photo(chat_id=callback.from_user.id,
                            photo=img)
     update_user_state(callback.message, START)
     bot.send_message(chat_id=callback.from_user.id,
                      text='Waiting for the next command')
-    print(dict(places), get_user_state(callback.message))
 
 
 @bot.message_handler(func=lambda message: get_user_state(message) == START,
@@ -131,14 +113,16 @@ def command_add(message):
 
 @bot.message_handler(commands=['list'])
 def list_places(message):
-    places_names = get_places_names(message)
-    print(places_names)
-    keyboard = types.InlineKeyboardMarkup()
-    #btns = [types.InlineKeyboardButton(text=button, callback_data=button) for button in places_names]
-    #keyboard.add(*btns)
-    #bot.send_message(message.chat.id, f'Recent 10 stored places. Select one to get more details',
-     #                reply_markup=keyboard)
+    places_names = get_places_names(message)[-10:]
+    keyboard = draw_buttons(places_names)
+    bot.send_message(message.chat.id, f'Recent 10 stored places. Select one to get more details',
+                     reply_markup=keyboard)
 
+@bot.message_handler(commands=['reset'])
+def reset_places(message):
+    keyboard = draw_buttons(['OK', 'Cancel'])
+    bot.send_message(message.chat.id, 'Do you really want to reset your places?',
+                     reply_markup=keyboard)
 
 @bot.message_handler(func=lambda message: get_user_state(message) == SET_NAME)
 def set_name(message):
