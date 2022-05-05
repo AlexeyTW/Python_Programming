@@ -14,7 +14,7 @@ cursor = conn.cursor()
 
 commands = ['/add', '/list', '/reset']
 buttons = ['Yes', 'No']
-START, SET_NAME, SET_COORDS, SET_PHOTO, ADD_PLACE = range(5)
+START, SET_NAME, SET_COORDS, SET_PHOTO, ADD_PLACE, LISTING = range(6)
 
 places = defaultdict(lambda: [])
 place = defaultdict(lambda: {})
@@ -57,13 +57,13 @@ def add(param, value):
 
 def store_place(message):
     keyboard = draw_buttons(buttons)
-    bot.send_message(message.chat.id, f'Do you want to store this place: \n{dict(place)}',
+    bot.send_message(message.chat.id, 'Do you want to store this place?',
                      reply_markup=keyboard)
 
 
 def get_places_names(message):
     user_places = cursor.execute(f'select * from places where user_id = {message.chat.id}').fetchall()
-    places_names = [item[1] for item in user_places[1:]]
+    places_names = [item[1] for item in user_places]
     return places_names
 
 
@@ -80,14 +80,14 @@ def img_to_db(photo):
         return file_id
 
 
-@bot.callback_query_handler(lambda x: True)
+@bot.callback_query_handler(lambda callback: get_user_state(callback.message) != LISTING)
 def callback_handler(callback):
     names = get_places_names(callback.message)
     if callback.data == 'Yes':
         place_to_db(callback.from_user.id,
                     place['name'],
                     place['coordinates'],
-                    place['photo'][0].file_id)
+                    place['photo'][-1].file_id if place['photo'] else None)
         bot.send_message(chat_id=callback.from_user.id,
                          text=f'Place {place["name"]} has been added')
     if callback.data in names:
@@ -99,9 +99,25 @@ def callback_handler(callback):
             img = bot.download_file(file.file_path)
             bot.send_photo(chat_id=callback.from_user.id,
                            photo=img)
+    if callback.data == 'OK':
+        cursor.execute('delete from places where user_id = {}'.format(callback.from_user.id))
+        conn.commit()
+        bot.send_message(callback.from_user.id, 'Your places have been deleted from the storage')
     update_user_state(callback.message, START)
     bot.send_message(chat_id=callback.from_user.id,
                      text='Waiting for the next command')
+
+
+@bot.callback_query_handler(lambda callback: get_user_state(callback.message) == LISTING)
+def callback_list(callback):
+    update_user_state(callback.message, START)
+    if callback.data == 'Show all places':
+        places_names = get_places_names(callback.message)[-10:]
+        keyboard = draw_buttons(places_names)
+        bot.send_message(callback.from_user.id, f'Recent 10 stored places. Select one to get more details',
+                         reply_markup=keyboard)
+    if callback.data == 'Show nearest places':
+        print(callback.data)
 
 
 @bot.message_handler(func=lambda message: get_user_state(message) == START,
@@ -113,10 +129,12 @@ def command_add(message):
 
 @bot.message_handler(commands=['list'])
 def list_places(message):
-    places_names = get_places_names(message)[-10:]
-    keyboard = draw_buttons(places_names)
-    bot.send_message(message.chat.id, f'Recent 10 stored places. Select one to get more details',
-                     reply_markup=keyboard)
+    update_user_state(message, LISTING)
+    list_options = ['Show nearest places', 'Show all places']
+    opts_keyboard = draw_buttons(list_options)
+    bot.send_message(message.chat.id, f'Choose the places you want to get',
+                     reply_markup=opts_keyboard)
+
 
 @bot.message_handler(commands=['reset'])
 def reset_places(message):
