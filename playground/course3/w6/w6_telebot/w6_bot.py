@@ -6,6 +6,7 @@ import sqlite3
 import re
 
 token = '5284544538:AAHYMdJ0uhmNkGDWD-2byon6XFgSAqovPaw'
+api_key = 'AIzaSyDcXR8kJ-AYp18yE-QHxnYgfTSm8gYK1So'
 
 bot = TeleBot(token)
 
@@ -14,7 +15,7 @@ cursor = conn.cursor()
 
 commands = ['/add', '/list', '/reset']
 buttons = ['Yes', 'No']
-START, SET_NAME, SET_COORDS, SET_PHOTO, ADD_PLACE, LISTING = range(6)
+START, SET_NAME, SET_COORDS, SET_PHOTO, ADD_PLACE, USER_COORDS = range(6)
 
 places = defaultdict(lambda: [])
 place = defaultdict(lambda: {})
@@ -79,8 +80,13 @@ def img_to_db(photo):
         file_id = bot.get_file(photo.file_id)
         return file_id
 
+def calc_dist(origin, destination):
+    x_orig, y_orig = list(map(float, origin.split(',')))
+    x_dest, y_dest = list(map(float, destination.split(',')))
+    dist = ((x_dest - x_orig) ** 2 + (y_dest - y_orig) ** 2) ** 0.5
+    return dist
 
-@bot.callback_query_handler(lambda callback: get_user_state(callback.message) != LISTING)
+@bot.callback_query_handler(lambda callback: True)
 def callback_handler(callback):
     names = get_places_names(callback.message)
     if callback.data == 'Yes':
@@ -90,6 +96,12 @@ def callback_handler(callback):
                     place['photo'][-1].file_id if place['photo'] else None)
         bot.send_message(chat_id=callback.from_user.id,
                          text=f'Place {place["name"]} has been added')
+
+    if callback.data == 'OK':
+        cursor.execute('delete from places where user_id = {}'.format(callback.from_user.id))
+        conn.commit()
+        bot.send_message(callback.from_user.id, 'Your places have been deleted from the storage')
+
     if callback.data in names:
         plc = get_place_by_name(callback.message, callback.data)
         bot.send_message(callback.from_user.id, f'Place name: {plc[1]},\n'
@@ -99,25 +111,36 @@ def callback_handler(callback):
             img = bot.download_file(file.file_path)
             bot.send_photo(chat_id=callback.from_user.id,
                            photo=img)
-    if callback.data == 'OK':
-        cursor.execute('delete from places where user_id = {}'.format(callback.from_user.id))
-        conn.commit()
-        bot.send_message(callback.from_user.id, 'Your places have been deleted from the storage')
-    update_user_state(callback.message, START)
-    bot.send_message(chat_id=callback.from_user.id,
-                     text='Waiting for the next command')
+        return
 
-
-@bot.callback_query_handler(lambda callback: get_user_state(callback.message) == LISTING)
-def callback_list(callback):
-    update_user_state(callback.message, START)
     if callback.data == 'Show all places':
         places_names = get_places_names(callback.message)[-10:]
         keyboard = draw_buttons(places_names)
         bot.send_message(callback.from_user.id, f'Recent 10 stored places. Select one to get more details',
                          reply_markup=keyboard)
+        return
+
     if callback.data == 'Show nearest places':
-        print(callback.data)
+        bot.send_message(callback.from_user.id, 'Type your coordinates')
+        update_user_state(callback.message, USER_COORDS)
+        return
+
+    update_user_state(callback.message, START)
+    bot.send_message(chat_id=callback.from_user.id,
+                     text='Waiting for the next command')
+
+@bot.message_handler(func=lambda message: get_user_state(message) == USER_COORDS)
+def get_user_coordinates(message):
+    origin = check_coordinates(message)
+    if origin:
+        dists = {}
+        destinations = cursor.execute(f'select name, coords from places where user_id = {message.chat.id}').fetchall()
+        for i in destinations:
+            dists[calc_dist(origin, i[1])] = i[0]
+        nearest_dist = min(dists.keys())
+        nearest_place = dists[nearest_dist]
+        bot.send_message(message.chat.id, f'The closest cafe to you is {nearest_place}')
+    update_user_state(message, START)
 
 
 @bot.message_handler(func=lambda message: get_user_state(message) == START,
@@ -129,7 +152,6 @@ def command_add(message):
 
 @bot.message_handler(commands=['list'])
 def list_places(message):
-    update_user_state(message, LISTING)
     list_options = ['Show nearest places', 'Show all places']
     opts_keyboard = draw_buttons(list_options)
     bot.send_message(message.chat.id, f'Choose the places you want to get',
