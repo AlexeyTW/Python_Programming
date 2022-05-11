@@ -152,7 +152,8 @@ def get_user_coordinates(message):
                                           f'Жду следующей команды')
         update_user_state(message, START)
     else:
-        bot.send_message(message.chat.id, 'Неверные координаты. Используй формат lat, long')
+        bot.send_message(message.chat.id, 'Неверные координаты. Используй формат lat, long. Например:\n'
+                                          '58.045966, 38.843106')
         update_user_state(message, USER_COORDS)
 
 
@@ -202,7 +203,8 @@ def set_name(message):
 def set_coordinates(message):
     coords = check_coordinates(message)
     if not coords:
-        bot.send_message(message.chat.id, 'Неверные координаты. Используйте формат lat, long')
+        bot.send_message(message.chat.id, 'Неверные координаты. Используй формат lat, long. Например:\n'
+                                          '58.045966, 38.843106')
     else:
         add('coordinates', str(coords))
         bot.send_message(message.chat.id, "Задайте фото или введи 'skip' для пропуска шага")
