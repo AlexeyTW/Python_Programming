@@ -99,7 +99,7 @@ def callback_handler(callback):
         bot.send_message(chat_id=callback.from_user.id,
                          text=f'Место {place["name"]} добавлено')
 
-    if callback.data == 'OK':
+    if callback.data == 'ОК':
         cursor.execute('delete from places where user_id = {}'.format(callback.from_user.id))
         conn.commit()
         bot.send_message(callback.from_user.id, 'Ваши места были удалены из хранилища данных')
@@ -118,7 +118,14 @@ def callback_handler(callback):
     if callback.data == 'Список 10 недавних мест':
         places_names = get_places_names(callback.message)[-10:]
         keyboard = draw_buttons(places_names)
-        bot.send_message(callback.from_user.id, f'Недавние 10 мест. Выберите, чтобы полуить детали',
+        bot.send_message(callback.from_user.id, f'Недавние 10 мест. Выберите, чтобы получить детали',
+                         reply_markup=keyboard)
+        return
+
+    if callback.data == 'Все места':
+        places_names = get_places_names(callback.message)
+        keyboard = draw_buttons(places_names)
+        bot.send_message(callback.from_user.id, f'Недавние 10 мест. Выберите, чтобы получить детали',
                          reply_markup=keyboard)
         return
 
@@ -164,6 +171,7 @@ def start_message(message):
                                       '/list - Выбор режима отображения мест:\n'
                                       '- отобразить ближайшее к тебе место\n'
                                       '- отобразить список 10 недавних мест\n'
+                                      '- отобразить все места\n'
                                       '/reset - удалить все твои места\n\n'
                                       'Прошу обратить внимание, что ближайшее место определяется путем вычисления\n'
                                       'кратчайшего расстояния по прямой, потому что сервис GoogleMaps API платный')
@@ -171,7 +179,7 @@ def start_message(message):
 
 @bot.message_handler(commands=['list'])
 def list_places(message):
-    list_options = ['Ближайшее ко мне', 'Список 10 недавних мест']
+    list_options = ['Ближайшее ко мне', 'Список 10 недавних мест', 'Все места']
     opts_keyboard = draw_buttons(list_options)
     bot.send_message(message.chat.id, f'Какие места вы хотите посмотреть?',
                      reply_markup=opts_keyboard)
@@ -179,7 +187,7 @@ def list_places(message):
 
 @bot.message_handler(commands=['reset'])
 def reset_places(message):
-    keyboard = draw_buttons(['OK', 'Cancel'])
+    keyboard = draw_buttons(['ОК', 'Отмена'])
     bot.send_message(message.chat.id, 'Действительно удалить все ваши места?',
                      reply_markup=keyboard)
 
@@ -216,5 +224,10 @@ def simple_message(message):
     bot.send_message(message.chat.id, 'Введите корректную команду.\n /start для отображения списка команд')
 
 
-
-bot.polling()
+while True:
+    try:
+        bot.polling(none_stop=True, interval=1)
+    except Exception as ex:
+        print(ex)
+    finally:
+        bot.polling(none_stop=True, interval=1)
